@@ -2,7 +2,9 @@ This is the project for the foursquare hackathon :D
 
 
 TODO:
--> Be able to log in with foursquare
+DONE -> Be able to log in with foursquare
+-> Templates
+-> Static files
 -> Create a session
 -> Store users in the db
 -> Could do logout
