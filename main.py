@@ -1,14 +1,14 @@
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
+from google.appengine.ext.webapp import util, template
 
-from foursquare import *                                                      
+from foursquare import *
 from google.appengine.api import urlfetch
 import logging  
 import keys
 
 from django.utils import simplejson as json 
 
-helper = FoursquareAuthHelper(keys.foursquare_client, keys.foursquare_secret, "http://127.0.0.1:9119/oauth_callback")
+helper = FoursquareAuthHelper(keys.foursquare_client, keys.foursquare_secret, keys.foursquare_callback)
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
