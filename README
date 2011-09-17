@@ -3,9 +3,9 @@ This is the project for the foursquare hackathon :D
 
 TODO:
 DONE -> Be able to log in with foursquare
--> Templates
--> Static files
--> Create a session
+DONE -> Templates
+DONE -> Static files
+DONE -> Create a session
 -> Store users in the db
 -> Could do logout
 -> Be able to create a scavenger hunt
