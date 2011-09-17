@@ -6,8 +6,8 @@ DONE -> Be able to log in with foursquare
 DONE -> Templates
 DONE -> Static files
 DONE -> Create a session
--> Store users in the db
--> Could do logout
+DONE -> Store users in the db
+DONE -> Could do logout
 -> Be able to create a scavenger hunt
 -> Be able to add venues to a scavenger
 -> Be able to publish a scanvenger hunt
