@@ -1,1 +1,17 @@
 This is the project for the foursquare hackathon :D
+
+
+TODO:
+-> Be able to log in with foursquare
+-> Create a session
+-> Store users in the db
+-> Could do logout
+-> Be able to create a scavenger hunt
+-> Be able to add venues to a scavenger
+-> Be able to publish a scanvenger hunt
+-> Be able to share that ur with someone else
+-> Be able to make progress in the scavenger hunt
+-> Be able to WIN
+
+===== MVP ====
+
