@@ -125,6 +125,12 @@ button {width: auto; overflow: visible;}
 
 /* new Linux- and Windows-friendly sans-serif font stack: http://mky.be/fontstack */
 body {font: 13px Helmet, Freesans, sans-serif;}
+h1, h2, h3 {
+  font-family: 'Metrophobic', sans-serif;
+}
+
+h1 { font-size: 48px; }
+h2 { font-size: 32px;}
 
 /* using local fonts? make sure to read up on Paul Irish's 
 	Bulletproof @font-face syntax: http://mky.be/font-face/bulletproof/ */
@@ -148,7 +154,14 @@ mark {background-color: #fcd700; color: #000; font-style: italic; font-weight: b
 
 /* HTML5 reset ends here */
 
+.wrapper {
+  width: 960px;
+  margin: 0 auto;
+}
 
+article.main {
+  min-height: 300px;
+}
 
 /* HTML5 reset starts here */
 
