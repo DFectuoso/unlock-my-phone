@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 
-KK thanks you are logged in
-{{access_token}}
+Scavenger hunts:
+{% for hunt in hunts %}
+  {{hunt.name}}</br>
+{% endfor %}
+
+<a href="/hunt/create">Create a new hunt</a>
 
 
 {% endblock %}

@@ -27,6 +27,11 @@ class User(db.Model):
       user = user_query[0]
     return user
 
+class Hunt(db.Model):
+  name = db.StringProperty(required=False)
+  user = db.ReferenceProperty(User, collection_name='hunts')
+
+ 
 class MainHandler(webapp.RequestHandler):
   def get(self):
     session = get_current_session()
@@ -39,6 +44,8 @@ class DashboardHandler(webapp.RequestHandler):
   def get(self): 
     session = get_current_session()
     if session.has_key('user'):
+      user = session["user"]
+      hunts = user.hunts
       self.response.out.write(template.render('templates/dashboard.html', locals()))
     else:
       self.redirect("/")
@@ -77,6 +84,26 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     session['user'] = user 
     self.redirect('/dashboard')
 
+class HuntCreateHandler(webapp.RequestHandler):
+  def get(self):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      self.response.out.write(template.render('templates/hunt-create.html', locals()))
+    else:
+      self.redirect("/")
+ 
+  def post(self):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      name = self.request.get("name")
+      hunt = Hunt(name=name,user=user)
+      hunt.put()
+      self.redirect("/dashboard")
+    else:
+      self.redirect("/")
+ 
 def main():
   application = webapp.WSGIApplication([
     ('/', MainHandler),
@@ -84,6 +111,7 @@ def main():
     ('/login', LoginHandler),
     ('/logout', LogoutHandler),
     ('/oauth_callback', OAuthCallbackHandler),
+    ('/hunt/create', HuntCreateHandler),
   ], debug=True)
   util.run_wsgi_app(application)
 
