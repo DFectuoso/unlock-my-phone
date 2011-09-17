@@ -12,7 +12,11 @@ helper = FoursquareAuthHelper(keys.foursquare_client, keys.foursquare_secret, ke
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
-    self.response.out.write('Hello world!')
+    self.response.out.write(template.render('templates/main.html', locals()))
+
+class DashboardHandler(webapp.RequestHandler):
+  def get(self):
+    self.response.out.write(template.render('templates/dashboard.html', locals()))
 
 class LoginHandler(webapp.RequestHandler):
   def get(self):
@@ -31,14 +35,12 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     #client = FoursquareClient(result["access_token"])                         
     #lol = client.users_venuehistory()
 
-    self.redirect('/')
-
-
-    self.response.out.write('Hello world!')
+    self.redirect('/dashboard')
 
 def main():
   application = webapp.WSGIApplication([
     ('/', MainHandler),
+    ('/dashboard', DashboardHandler),
     ('/login', LoginHandler),
     ('/oauth_callback', OAuthCallbackHandler),
   ], debug=True)
