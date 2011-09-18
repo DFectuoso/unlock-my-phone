@@ -20,7 +20,7 @@ def sendSMS(phone_number, msg):
 
   request = urllib2.Request(url, urllib.urlencode(data))
   base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
-  request.add_header("Authorization", "Basic %s" % base64string)   
+  request.add_header("Authorization", "Basic %s" % base64string)
   try:
     urllib2.urlopen(request)
   except:

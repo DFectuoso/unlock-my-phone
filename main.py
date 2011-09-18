@@ -131,10 +131,34 @@ class OAuthCallbackHandler(webapp.RequestHandler):
 
 class PushApiHandler(webapp.RequestHandler):
   def post(self):
-    logging.info(self.request.get("checkin"))
-    foo = json.loads(self.request.get("checkin"))
-    logging.info(foo)
     alertAllPlayers(Hunt.all().fetch(1)[0])
+    checkin_info = json.loads(self.request.get("checkin"))
+    user_id      = checkin_info["user"]["id"]
+    venue_id     = checkin_info["venue"]["id"]
+
+    # get user and venue, if we don't have a valid one, we don't care about this check in
+    user = User.all().filter("foursquare_id",user_id).fetch(1)
+    venue = Venue.all().filter("foursquare_id",venue_id).fetch(1)
+    if len(user) == 1 and len(venue) == 1:
+      user = user[0]
+      venue = venue[0]
+      #TODO only do this for players of ACTIVE hunts
+      hunt_player = HuntPlayer.all().filter("user",user).order("-started_playing").fetch(1)
+      # We need to check that the user is playing
+      if len(hunt_player) == 1:
+        hunt_player = hunt_player[0]
+        # We need to make sure the user has not been on this location before
+        if hunt_player.venues.count(venue.key()) == 0:
+          hunt_player.venues.append(venue.key())
+          hunt_player.put()
+          # TODO Notify the user, the check in is in
+          logging.info("We are in, lets do yea and yea")
+        else:
+          logging.info("Got a user, playing but he had been here before")
+      else:
+        logging.info("We got a user, but he is not playing")
+    else:
+      logging.info("Got a checkin, but we don't know that user or the venue")
 
 class HuntCreateHandler(webapp.RequestHandler):
   def post(self):
