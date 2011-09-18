@@ -23,6 +23,9 @@
   <h1>{{hunt.user.first_name}} {{hunt.user.last_name}} is organizing a scavenger hunt!</h1>
   <p class="teaser">Squarehunt is an easy way to join awesome adventures friends and fans have organized for you.</p>
   <!-- <p>{{hunt.name}} is waiting for you</p> -->
-  <a class="btn large primary" href="/{{hunt_key}}/join">I'm ready to start hunting</a>
+  <h3 class="starthunting">I'm ready to start hunting</h3>
+  <a id="login" href="/login">
+    <img src="/static/img/connect-white.png" alt="Connect with Foursquare" />
+  </a>
 </header>
 {% endblock %}
