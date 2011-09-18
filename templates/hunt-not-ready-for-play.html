@@ -16,15 +16,29 @@
       float: left;
       margin-top: 0;
   }
+  #countdown{
+    overflow: hidden;
+    margin: 0 auto;
+    display: inline-block;
+  }
+  .countdown_section{
+    float: left;
+    margin-right: 5px;
+    margin-left: 5px;
+    text-align: center;
+    padding: 5px;
+  }
+  .countdown_section > span:first-child{
+    font-size: 3em;
+    font-weight: bold;
+  }
+
+
+
 </style>
 <header class="span-two-thirds great">
   <img class="logo desktop" src="/static/img/squarehunt_logo_400px.png">
   <img class="logo mobile" style="display:none" src="/static/img/squarehunt_logo_200px.png">
-  <h1>One more thing! We need your phone number to send notifications.</h1>
-  <form method="post">
-    <input type="text" name="phone" class="span5" placeholder="555-555-5555"/>
-
-  </form>
-  <a class="btn large info" href="/{{hunt_key}}/join">I'm ready to start hunting</a>
+  <h1>This hunt is not ready for play yet. Make sure it has a start and end date!</h1>
 </header>
 {% endblock %}

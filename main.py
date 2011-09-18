@@ -122,7 +122,10 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     user = User.get_or_create_user_by_foursquare_id(user_info["response"]["user"]["id"])
     user.first_name = user_info["response"]["user"]["firstName"]
     user.last_name  = user_info["response"]["user"]["lastName"]
-    user.phone_number = db.PhoneNumber(user_info["response"]["user"]["contact"]["phone"])
+    try:
+      user.phone_number = db.PhoneNumber(user_info["response"]["user"]["contact"]["phone"])
+    except KeyError:
+      logging.info("no phone")
     user.access_token = result["access_token"]
     user.put()
 
@@ -136,10 +139,15 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     session.regenerate_id()
     session['user'] = user
 
-    if hunt_to_redirect is not "":
-      self.redirect('/' + hunt_to_redirect + "/join")
+    if not user.phone_number:
+      if hunt_to_redirect is not "":
+        session["login_redirect_to_hunt"] = hunt_to_redirect
+      self.redirect("/add-phone")
     else:
-      self.redirect('/dashboard')
+      if hunt_to_redirect is not "":
+        self.redirect('/' + hunt_to_redirect + "/join")
+      else:
+        self.redirect('/dashboard')
 
 class PushApiHandler(webapp.RequestHandler):
   def post(self):
@@ -305,6 +313,10 @@ class VenueSearchHandler(webapp.RequestHandler):
 class HuntPlayerHomeHandler(webapp.RequestHandler):
   def get(self,hunt_key):
     hunt = db.get(hunt_key)
+    if hunt.start_time_local is None or hunt.end_time_local is None:
+      self.response.out.write(template.render('templates/hunt-not-ready-for-play.html', locals()))
+      return
+
     session = get_current_session()
     if session.has_key('user'):
       user = session["user"]
@@ -359,14 +371,36 @@ class HuntPlayerJoinHandler(webapp.RequestHandler):
 
 class HuntAddPhoneHandler(webapp.RequestHandler):
   def get(self):
-    self.response.out.write(template.render('templates/hunt-player-add-phone.html', locals()))
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session['user']
+      self.response.out.write(template.render('templates/hunt-player-add-phone.html', locals()))
+    else:
+      self.redirect('/')
+
+  def post(self):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session['user']
+
+      user.phone_number = db.PhoneNumber(self.request.get("phone"))
+      user.put()
+
+      hunt_to_redirect = ""
+      if session.has_key('login_redirect_to_hunt'):
+        hunt_to_redirect = session["login_redirect_to_hunt"]
+
+      if hunt_to_redirect is not "":
+        self.redirect('/' + hunt_to_redirect + "/join")
+      else:
+        self.redirect('/dashboard')
+    else:
+      self.redirect('/')
 
 def main():
   application = webapp.WSGIApplication([
     ('/', MainHandler),
-    
     ('/add-phone', HuntAddPhoneHandler),
-    
     ('/dashboard', DashboardHandler),
     ('/login', LoginHandler),
     ('/logout', LogoutHandler),
