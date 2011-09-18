@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 
-Scavenger hunts:
+  <h2>Scavenger hunts</h2>
+<ul>
 {% for hunt in hunts %}
-  {{hunt.name}}</br>
+  <li>{{hunt.name}}</li>
 {% endfor %}
-
+</ul>
 <a href="/hunt/create">Create a new hunt</a>
 
 

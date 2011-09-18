@@ -51,12 +51,14 @@
 <body>
 
 <div class="container">
-  <header>
+  <header class="page-header">
+    
     <h1><a href="/">Working Title</a></h1>
+    
   </header>
-	<article class="main">
-  {% block content %}{% endblock %}
-  </article>
+	<div class="content">
+    {% block content %}{% endblock %}
+  </div>
   <footer>
 
   		<p><small>A hackathon thingy</small></p>
