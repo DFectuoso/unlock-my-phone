@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<script>
+navigator.geolocation.getCurrentPosition(GetLocation);
+function GetLocation(location) {
+  console.log(location.coords.latitude);
+  console.log(location.coords.longitude);
+  console.log(location.coords.accuracy);
+  console.log(location.coords.altitude);
+  console.log(location.coords.altitudeAcc);
+}
+</script>
+
 <form method="POST">
   <input name="name"/>
   <input type="submit"/>

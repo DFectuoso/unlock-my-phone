@@ -104,6 +104,21 @@ class HuntCreateHandler(webapp.RequestHandler):
     else:
       self.redirect("/")
  
+class VenueSearchHandler(webapp.RequestHandler):
+  def get(self):
+    session = get_current_session()
+    if session.has_key('user'):
+      query = self.request.get("ll")
+      query = self.request.get("ll_acc")
+      query = self.request.get("alt")
+      query = self.request.get("alt_acc")
+      query = self.request.get("query")
+      user = session["user"]
+      client = FoursquareClient(user.access_token)
+      self.response.out.write(client.venues_search(None,None,None,None,query))
+    else:
+      self.response.out.write("Error")
+
 def main():
   application = webapp.WSGIApplication([
     ('/', MainHandler),
@@ -112,6 +127,7 @@ def main():
     ('/logout', LogoutHandler),
     ('/oauth_callback', OAuthCallbackHandler),
     ('/hunt/create', HuntCreateHandler),
+    ('/venue/search', VenueSearchHandler),
   ], debug=True)
   util.run_wsgi_app(application)
 
