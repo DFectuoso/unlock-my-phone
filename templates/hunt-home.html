@@ -1,36 +1,105 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<script>
-navigator.geolocation.getCurrentPosition(GetLocation);
-function GetLocation(location) {
-  var ll = location.coords.latitude + "," + location.coords.longitude;
-  var ll_act = location.coords.accuracy;
-  var alt = location.coords.altitude + 0;
-  var alt_acc = location.coords.altitudeAcc;
-  $.getJSON("/venue/search",
-    {
-      ll:ll,
-      ll_act:ll_act,
-      alt:alt,
-      alt_acc:alt_acc,
-      query:"pizza"
-    },
-    function(data){
-      var groups = data.response.groups
-      var group = groups[0]
-      var venues = group.items
-      for(var i = 0; i < venues.length; i++){
-        console.log(venues[i]);
-      }
-    }
-  )
+<section class="group" id="venue_list">
+  <header>
+    <h3>{{hunt.name}}</h3>
+  </header>
+  <ul id="current_venues">
+    {% for venue in venues %}
+       <li>{{venue.name}}</li>
+    {% endfor %}
+  </ul>
+  <form method="get" id="venue_form">
+      <fieldset>
+          <legend>Add a venue</legend>
+          <div class="clearfix">
+              <label>&nbsp;</label>
+              <input type="text" class="span4" name="query" placeholder="Pizza" id="venue_query" />
+          </div>
+      </fieldset>
+  </form>
+  <div id="venue_map">
+    
+  </div>
+</section>
+
+
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+if (Modernizr.geolocation) {
+  navigator.geolocation.getCurrentPosition(function(location) {
+    $('#venue_list')
+      .data('ll', location.coords.latitude + "," + location.coords.longitude)
+      .data('ll_act', location.coords.accuracy)
+      .data('alt', location.coords.altitude + 0)
+      .data('alt_acc', location.coords.altitudeAcc);
+  });
 }
+(function(){
+  var $vl = $('#venue_list');
+    
+    send_query = function(query_word) {
+      var sent_data = {
+          ll: $vl.data('ll'),
+          ll_act: $vl.data('ll_act'),
+          alt: $vl.data('alt'),
+          alt_acc: $vl.data('alt_acc'),
+          query: query_word
+        };
+      $.getJSON("/venue/search", sent_data, function(data) {
+          var venues = data.response.groups[0].items,
+            $list = $('<div/>');
+            
+          if (venues.length === 0) {
+            console.log('no venues')
+            $list.html('<p>No venues found.</p>');
+          } else {
+            for (i in venues) {
+              var venue = venues[i];
+              if (!!venue) {
+                var venue_tmpl = '<div class="venue">'
+                  +'<a href="#" class="add_venue" data-id="'+venue.id+'">'+venue.name+'</a>'
+                  +'</div>';
+                $list.append(venue_tmpl);
+              }
+            }          
+          }
+          
+          $('#venue_map').empty().append($list);
+        }
+      );
+    },
+    delay = (function(){
+      var timer = 0;
+      return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+      };
+    })();;
+  
+  $('#venue_query').bind('keyup', function() {
+    $this = $(this);
+    delay(function() {
+      send_query($this.val());
+    }, 300);
+  });
+  
+  $('#venue_map').delegate('a.add_venue', 'click', function(e) {
+    e.preventDefault();
+    venue_id = $(this).data('id');
+    $.get(window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
+      if (data === 'Ok') {
+        console.log('todo bien');
+      } else if (data === "Error") {
+        console.log('todo mal');
+      } else {
+        console.log('todo muy mal');
+      }
+    });
+  });
+  
+}());
 </script>
-
-Sup {{hunt.name}}
-{% for venue in venues %}
-  {{venue.name}}<br/>
-{% endfor %}
-
 {% endblock %}

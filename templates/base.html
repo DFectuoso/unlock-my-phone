@@ -44,7 +44,7 @@
 	<link href='http://fonts.googleapis.com/css?family=Metrophobic' rel='stylesheet' type='text/css'>
 	
 	<!-- all our JS is at the bottom of the page, except for Modernizr. -->
-	<!-- <script src="/static/js/modernizr-1.7.min.js"></script> -->
+  <script src="/static/js/modernizr-1.7.min.js"></script>
 
 </head>
 
@@ -69,8 +69,9 @@
 <!-- here comes the javascript -->
 
 <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
-<script>window.jQuery || document.write("<script src='/static/js/jquery-1.6.3.min.js'>\x3C/script>")</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script>window.jQuery || document.write("<script src='/static/js/jquery.min.js'>\x3C/script>")</script>
+{% block javascript %}{% endblock %}
 
 <!-- this is where we put our custom functions -->
 <!--<script src="/static/js/functions.js"></script> -->
