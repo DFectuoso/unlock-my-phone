@@ -124,6 +124,8 @@ class HuntHomeHandler(webapp.RequestHandler):
     if session.has_key('user'):
       user = session["user"]
       hunt = db.get(hunt_key)
+      logging.info(hunt.venues)
+      venues = db.get(hunt.venues)
       self.response.out.write(template.render("templates/hunt-home.html",locals()))
     else:
       self.redirect("/")

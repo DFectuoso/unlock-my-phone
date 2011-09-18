@@ -8,12 +8,16 @@ DONE -> Static files
 DONE -> Create a session
 DONE -> Store users in the db
 DONE -> Could do logout
--> Be able to create a scavenger hunt
--> Be able to add venues to a scavenger
--> Be able to publish a scanvenger hunt
--> Be able to share that ur with someone else
--> Be able to make progress in the scavenger hunt
--> Be able to WIN
+DONE -> Be able to create a scavenger hunt
+DONE-> Be able to add venues to a scavenger
+-> [Yeduan] Hacer un awesome venue editor para las hunts
+-> Have a URL per hunt that you can share, people can join
+-> A user that joins, can do normal 4square checkins, we read them 1 time per minute
+-> If he check into a venue in the hunt, we have the state of it 
+-> We notify him that he got one
+-> The user can see a status page of his participation in the hunt!
+-> Be able to WIN[ and be awesome ]
+-> Be able to publish a scanvenger hunt[Lock changes]
 
 ===== MVP ====
 

@@ -29,5 +29,8 @@ function GetLocation(location) {
 </script>
 
 Sup {{hunt.name}}
+{% for venue in venues %}
+  {{venue.name}}<br/>
+{% endfor %}
 
 {% endblock %}
