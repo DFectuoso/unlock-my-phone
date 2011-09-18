@@ -30,8 +30,30 @@ class User(db.Model):
 class Hunt(db.Model):
   name = db.StringProperty(required=False)
   user = db.ReferenceProperty(User, collection_name='hunts')
+  venues = db.ListProperty(db.Key)
 
+class Venue(db.Model):
+  foursquare_id = db.StringProperty(required=False)
+  name = db.StringProperty(required=False)
+  json = db.TextProperty(required=False)
  
+  @staticmethod
+  def get_or_create_by_foursquare_id(id):
+    venue_query = Venue.all().filter("foursquare_id", id).fetch(1)
+    if len(venue_query) == 0:
+      venue = Venue(foursquare_id=id)
+      venue.put()
+    else:
+      venue = venue_query[0]
+    return venue 
+
+  def update_info(self,venue_info):
+    self.json = json.dumps(venue_info["response"]["venue"])
+    self.name = venue_info["response"]["venue"]["name"]
+    self.id = venue_info["response"]["venue"]["id"]
+    self.put()
+  
+
 class MainHandler(webapp.RequestHandler):
   def get(self):
     session = get_current_session()
@@ -107,25 +129,47 @@ class HuntHomeHandler(webapp.RequestHandler):
       self.redirect("/")
 
 class HuntAddVenueHandler(webapp.RequestHandler):
-  def get(self):
+  def get(self,hunt_key):
     session = get_current_session()
     if session.has_key('user'):
+      #get user, hunt and venue_id
       user = session["user"]
-      # hunt = hunt
-      # venue = venue
-      # link venue
+      hunt = db.get(hunt_key)
+      venue_id = self.request.get("venue_id")
+      # get venue
+      venue = Venue.get_or_create_by_foursquare_id(venue_id)
+      
+      # update venue 
+      client = FoursquareClient(user.access_token)
+      venue.update_info(client.venues(venue_id))
+
+      # don't add it more than once
+      if hunt.venues.count(venue.key()) == 0:
+        hunt.venues.append(venue.key())
+        hunt.put()
       self.response.out.write("Ok")
     else:
       self.response.out.write("Error")
  
 class HuntRemoveVenueHandler(webapp.RequestHandler):
-  def get(self):
+  def get(self,hunt_key):
     session = get_current_session()
     if session.has_key('user'):
+      #get user, hunt and venue_id
       user = session["user"]
-      # hunt = hunt
-      # venue = venue
-      # link venue
+      hunt = db.get(hunt_key)
+      venue_id = self.request.get("venue_id")
+      # get venue
+      venue = Venue.get_or_create_by_foursquare_id(venue_id)
+      
+      # update venue 
+      client = FoursquareClient(user.access_token)
+      venue.update_info(client.venues(venue_id))
+
+      # don't add it more than once
+      if hunt.venues.count(venue.key()) == 1:
+        hunt.venues.remove(venue.key())
+        hunt.put()
       self.response.out.write("Ok")
     else:
       self.response.out.write("Error")
@@ -153,8 +197,8 @@ def main():
     ('/logout', LogoutHandler),
     ('/oauth_callback', OAuthCallbackHandler),
     ('/hunt/create', HuntCreateHandler),
-    ('/hunt/add_venue', HuntAddVenueHandler),
-    ('/hunt/remove_venue', HuntRemoveVenueHandler),
+    ('/hunt/(.+)/add_venue', HuntAddVenueHandler),
+    ('/hunt/(.+)/remove_venue', HuntRemoveVenueHandler),
     ('/hunt/(.+)', HuntHomeHandler),
     ('/venue/search', VenueSearchHandler),
   ], debug=True)
