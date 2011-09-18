@@ -5,7 +5,7 @@ from foursquare import *
 from google.appengine.api import urlfetch
 import logging
 import keys
-from twilio_helper import alertAllPlayers, alertAllPlayersButMe
+from twilio_helper import alertAllPlayers, alertAllPlayersButMe, alertPlayer
 
 from django.utils import simplejson as json
 from gaesessions import get_current_session
@@ -142,7 +142,7 @@ class PushApiHandler(webapp.RequestHandler):
     venue_id     = checkin_info["venue"]["id"]
 
     # get user and venue, if we don't have a valid one, we don't care about this check in
-    user = User.all().filter("foursquare_id",user_id).fetch(1)
+    user = User.all().filter("foursquare_id", user_id).fetch(1)
     # Safeguard 
     if len(user) == 0:
       return
@@ -150,18 +150,21 @@ class PushApiHandler(webapp.RequestHandler):
 
     for player in user.playing_hunts:
       # TODO, check if the hunt is active
-      venue = HuntVenue.all().filter("foursquare_id",venue_id).filter("hunt",player.hunt).fetch(1)
+      venue = HuntVenue.all().filter("foursquare_id", venue_id).filter("hunt", player.hunt).fetch(1)
 
       if len(venue) == 1:
         venue = venue[0]
         # We need to make sure the user has not been on this location before
-        hunt_checkin = HuntCheckin.all().filter("player",player).filter("hunt",player.hunt).filter("venue",venue).fetch(1)
+        hunt = player.hunt
+        hunt_checkin = HuntCheckin.all().filter("player", player).filter("hunt", hunt).filter("venue", venue).fetch(1)
 
         if len(hunt_checkin) == 0:
-          hunt_checkin = HuntCheckin(player=player, hunt=player.hunt, venue=venue)
+          hunt_checkin = HuntCheckin(player = player, hunt = hunt, venue=venue)
           # TODO add some metadata from foursquare
           hunt_checkin.put()
-          # TODO Notify the user, the check in is in
+          # TODO substitute points with an actual number
+          alertPlayer(player, "You found a checkpoint worth something points! On to the next one! Hurry!")
+          alertAllPlayersButMe(player, hunt, player.user.first_name + " just found a checkpoint! Better get movin'!")
           logging.info("We are in, lets do yea and yea")
         else:
           logging.info("We had already done this thing")
@@ -286,8 +289,8 @@ class HuntPlayerJoinHandler(webapp.RequestHandler):
       if len(hunt_player) == 0:
         hunt_player = HuntPlayer(user=user,hunt=hunt)
         hunt_player.put()
+        alertPlayer(hunt_player, "Thanks for joining the hunt. Good luck!")
         alertAllPlayersButMe(hunt_player, hunt, hunt_player.user.first_name + " just joined the hunt!")
-        # Start crawling foursquare for life yeah, for, this, user.
       self.redirect("/" + hunt_key)
     else:
       self.redirect("/login?hunt_key="+hunt_key)

@@ -12,6 +12,10 @@ def alertAllPlayersButMe(current_player, hunt, msg):
       logging.info(player.user.first_name)
       sendSMS(player.user.phone_number, msg)
 
+# Takes a HuntPlayer
+def alertPlayer(player, msg):
+  sendSMS(player.user.phone_number, msg)
+
 def sendSMS(phone_number, msg):
   logging.info("sending an sms to a player")
   url = "https://api.twilio.com/2010-04-01/Accounts/" + keys.twilio_username + "/SMS/Messages.json"
