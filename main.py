@@ -309,19 +309,31 @@ class HuntPlayerHomeHandler(webapp.RequestHandler):
       if len(hunt_player) == 0:
         self.response.out.write(template.render('templates/hunt-player-join-now.html', locals()))
       else:
-        hunt_player = hunt_player[0]
-        venues = hunt_player.hunt.venues
-        venues_for_display = []
-        checkins = HuntCheckin.all().filter("player", hunt_player).fetch(1000)
-        for venue in venues:
-          data = (venue.name, False)
-          for checkin in checkins:
-            if str(venue.key()) == str(checkin.venue.key()):
-              data = (venue.name, True)
+        # has it started?
+        if hunt.start_time_gmt < datetime.datetime.now():
+          # has it ended?
+          if hunt.end_time_gmt < datetime.datetime.now():
+            # It ended allready
+            self.response.out.write(template.render('templates/hunt-finished.html', locals()))
+            
+          else:
+            # we are playing at the moment
+            hunt_player = hunt_player[0]
+            venues = hunt_player.hunt.venues
+            venues_for_display = []
+            checkins = HuntCheckin.all().filter("player", hunt_player).fetch(1000)
+            for venue in venues:
+              data = (venue.name, False)
+              for checkin in checkins:
+                if str(venue.key()) == str(checkin.venue.key()):
+                  data = (venue.name, True)
+  
+              venues_for_display.append(data)
 
-          venues_for_display.append(data)
+            self.response.out.write(template.render('templates/hunt-player-status.html', locals()))
 
-        self.response.out.write(template.render('templates/hunt-player-status.html', locals()))
+        else: 
+          self.response.out.write(template.render('templates/hunt-player-joined-now-wait.html', locals()))
       # Did he join already?
     else:
       self.response.out.write(template.render('templates/hunt-player-join-now.html', locals()))
