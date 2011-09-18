@@ -162,8 +162,11 @@ class PushApiHandler(webapp.RequestHandler):
           hunt_checkin = HuntCheckin(player = player, hunt = hunt, venue=venue)
           # TODO add some metadata from foursquare
           hunt_checkin.put()
-          # TODO substitute points with an actual number
-          alertPlayer(player, "You found a checkpoint worth something points! On to the next one! Hurry!")
+
+          points_word = "point"
+          if hunt_checkin.venue.difficulty > 1:
+            points_word = "points"
+          alertPlayer(player, "You found a checkpoint worth " + str(hunt_checkin.venue.difficulty) + " " + points_word + "! On to the next one! Hurry!")
           alertAllPlayersButMe(player, hunt, player.user.first_name + " just found a checkpoint! Better get movin'!")
           logging.info("We are in, lets do yea and yea")
         else:
