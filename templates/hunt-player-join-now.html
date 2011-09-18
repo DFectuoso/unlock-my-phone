@@ -55,11 +55,13 @@
 
   <p class="teaser">Squarehunt is an easy way to join awesome adventures friends and fans have organized for you.</p>
   <!-- <p>{{hunt.name}} is waiting for you</p> -->
-  <a class="btn large primary" href="/{{hunt_key}}/join">I'm ready to start hunting</a>
-
   <div id="time-left">
     <h3>This hunt will start in</h3>
     <div id="countdown"></div>
   </div>
+  <h3 class="starthunting">I'm ready to start hunting</h3>
+  <a id="login" href="/{{hunt_key}}/join">
+    <img src="/static/img/connect-white.png" alt="Connect with Foursquare" />
+  </a>
 </header>
 {% endblock %}

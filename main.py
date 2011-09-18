@@ -354,9 +354,16 @@ class HuntPlayerJoinHandler(webapp.RequestHandler):
     else:
       self.redirect("/login?hunt_key="+hunt_key)
 
+class HuntAddPhoneHandler(webapp.RequestHandler):
+  def get(self):
+    self.response.out.write(template.render('templates/hunt-player-add-phone.html', locals()))
+
 def main():
   application = webapp.WSGIApplication([
     ('/', MainHandler),
+    
+    ('/add-phone', HuntAddPhoneHandler),
+    
     ('/dashboard', DashboardHandler),
     ('/login', LoginHandler),
     ('/logout', LogoutHandler),
