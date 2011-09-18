@@ -48,4 +48,4 @@ def postData(url):
     req = urllib2.Request(url, postData)
     print urllib2.urlopen(req).read()
 
-postData('http://localhost:9119/push')
+postData('http://localhost:9119/push_api')

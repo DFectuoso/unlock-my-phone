@@ -128,7 +128,8 @@ class OAuthCallbackHandler(webapp.RequestHandler):
       self.redirect('/dashboard')
 
 class PushApiHandler(webapp.RequestHandler):
-  def get(self):
+  def post(self):
+    logging.info(self.request.get("checkin"))
     foo = json.loads(self.request.get("checkin"))
     logging.info(foo)
 
