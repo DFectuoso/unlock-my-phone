@@ -7,6 +7,7 @@
   #logo{
     margin-bottom: 2em;
   }
+
   h1{
     font-size: 2.5em;
   }
@@ -20,6 +21,7 @@
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
+    overflow: hidden;
   }
   h3, .starthunting{
     color: #fd5800;
@@ -29,11 +31,12 @@
   #login img{
     padding-top: 7px;
     padding-left: 20px;
+    display: block;
   }
 </style>
-<div class="row">
 <header class="span-two-thirds">
-  <img id="logo" src="/static/img/squarehunt_logo_400px.png"/>
+  <img class="logo desktop" src="/static/img/squarehunt_logo_400px.png"/>
+  <img class="logo mobile" src="/static/img/squarehunt_logo_200px.png" style="display:none;"/>
 	<h1>Everybody Loves Scavenger Hunts.</h1> 
   <p class="teaser">We've created an easy way to create awesome adventures to share with your friends and fans.</p>
   <h3 class="starthunting">Ready to start hunting?</h3>
@@ -41,5 +44,4 @@
     <img src="/static/img/connect-white.png" alt="Connect with Foursquare" />
   </a>
 </header>
-</div>
 {% endblock %}

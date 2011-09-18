@@ -67,6 +67,32 @@
 <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 <script>window.jQuery || document.write("<script src='/static/js/jquery.min.js'>\x3C/script>")</script>
+<script>
+  $(function(){
+    if( $(window).width() < 500 ){
+      $('.logo.desktop').hide();
+      $('.logo.mobile').show();
+      $('header').toggleClass("span-two-thirds");
+      $('body').css({
+        paddingTop: '20px'
+      });
+      $('.logo').css({
+        float: 'none'
+      });
+      $('header').css({
+        textAlign: 'center'
+      });
+      $('.container').css({
+        width: '300px'
+      });
+      $('.content').css({
+        padding: '10px',
+        background: 'white url("/static/img/girl_with_map_small.png") no-repeat scroll 95% 100%',
+        minHeight: '400px'
+      });
+    }
+  })
+</script>
 {% block javascript %}{% endblock %}
 
 <!-- this is where we put our custom functions -->

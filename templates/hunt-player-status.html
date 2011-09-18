@@ -18,10 +18,13 @@
   }
   #countdown{
     overflow: hidden;
+    margin: 0 auto;
+    display: inline-block;
   }
   .countdown_section{
     float: left;
-    margin-right: 20px;
+    margin-right: 5px;
+    margin-left: 5px;
     text-align: center;
     padding: 5px;
   }
@@ -29,13 +32,28 @@
     font-size: 3em;
     font-weight: bold;
   }
+  #time-left{
+    background: #F5F5F5;
+    text-align: center;
+    padding: 0.5em;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 4px;
+    margin-bottom:1em;
+  }
+  #time-left h3{
+    color: #4ab2cf;
+  }
 </style>
 <header>
   <p class="desc">Current hunt</p>
   <h2>{{ hunt.name }}</h2>
 </header>
-<h3>Time Left</h3>
-<div id="countdown"></div>
+<div id="time-left">
+  <h3>Time Left</h3>
+  <div id="countdown"></div>
+</div>
 <h3>Chekpoints</h3>
 <table class="zebra-striped">
   <thead>
