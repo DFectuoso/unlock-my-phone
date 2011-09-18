@@ -38,7 +38,8 @@
 		 - To prevent iOS from applying its styles to the icon name it thusly: apple-touch-icon-precomposed.png
 		 - Transparency is not recommended (iOS will put a black BG behind the icon) -->
 	
-	<!-- CSS: screen, mobile & print are all in the same file -->
+  <!-- Using twitter bootstrap -->
+	<link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.3.0/bootstrap.min.css">
 	<link rel="stylesheet" href="/static/css/style.css">
 	<link href='http://fonts.googleapis.com/css?family=Metrophobic' rel='stylesheet' type='text/css'>
 	
@@ -49,7 +50,10 @@
 
 <body>
 
-<div class="wrapper"><!-- not needed? up to you: http://camendesign.com/code/developpeurs_sans_frontieres -->
+<div class="container">
+  <header>
+    <h1><a href="/">Working Title</a></h1>
+  </header>
 	<article class="main">
   {% block content %}{% endblock %}
   </article>
@@ -63,8 +67,8 @@
 <!-- here comes the javascript -->
 
 <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-<!-- <script>window.jQuery || document.write("<script src='/static/js/jquery-1.5.1.min.js'>\x3C/script>")</script> -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
+<script>window.jQuery || document.write("<script src='/static/js/jquery-1.6.3.min.js'>\x3C/script>")</script>
 
 <!-- this is where we put our custom functions -->
 <!--<script src="/static/js/functions.js"></script> -->
