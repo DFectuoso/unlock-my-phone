@@ -3,27 +3,33 @@
 
 <section class="group" id="venue_list" data-hunt-id="{{hunt.key}}">
   <header>
-    <h3>{{hunt.name}}</h3>
+    <p class="desc">Your Hunt</p>
+    <h2>{{hunt.name}}</h2>
   </header>
+  <h3>Checkpoints</h3>
   <table id="current_venues">
     <tbody>
     {% for venue in venues %}
       <tr class="venue-item" data-id="{{venue.foursquare_id}}">
         <td>{{venue.name}}</td>
+        <td>
+          <select name="difficulty" class="venue_difficulty">
+            <option value="1" {% ifequal venue.difficulty 1 %}selected{% endifequal %}>Easy</option>
+            <option value="2" {% ifequal venue.difficulty 2 %}selected{% endifequal %}>Moderate</option>
+            <option value="3" {% ifequal venue.difficulty 3 %}selected{% endifequal %}>Hard</option>
+          </select>
+        </td>
         <td><a class="close" href="#">&times;</a></td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
-  <form method="get" id="venue_form">
-      <fieldset>
-          <legend>Add a venue</legend>
-          <div class="clearfix">
-              <label>&nbsp;</label>
-              <input type="text" class="span4" name="query" placeholder="Pizza" id="venue_query" />
-          </div>
-      </fieldset>
-  </form>
+  <h3>Add a new checkpoint</h3>
+  <form method="get" class="" id="venue_form">
+    <div class="clearfix">
+      <label>Type a venue</label>
+      <input type="text" name="query" placeholder="Pizza" id="venue_query" />
+    </div>
   <div id="venue_map">
     
   </div>
@@ -38,7 +44,17 @@
   <div class="alert-message success fade in" data-alert="alert"><a class="close" href="#">&times;</a><p><%= message %></p></div>
 </script>
 <script type="text/html" id="venue_item_tpl">
-  <tr class="venue-item" data-id="<%= id %>"><td><%= name %></td><td><a class="close" href="#">&times;</a></td></tr>
+  <tr class="venue-item" data-id="<%= id %>">
+    <td><%= name %></td>
+    <td>
+      <select name="difficulty" class="venue_difficulty">
+        <option value="1" selected>Easy</option>
+        <option value="2">Moderate</option>
+        <option value="3">Hard</option>
+      </select>
+    </td>
+    <td><a class="close" href="#">&times;</a></td>
+  </tr>
 </script>
 <script type="text/html" id="venue_list_item_tpl">
   <li><a href="#" data-id="<%= id %>" class="add_venue"><%= name %></a></li>
