@@ -100,6 +100,7 @@ class OAuthCallbackHandler(webapp.RequestHandler):
   def get(self):
     code = self.request.get("code")                                           
     token_url = helper.get_access_token_url(code)
+    logging.info(token_url)
     result = urlfetch.fetch(token_url)                                        
     result = json.loads(result.content)
 
@@ -125,6 +126,11 @@ class OAuthCallbackHandler(webapp.RequestHandler):
       self.redirect('/' + hunt_to_redirect + "/join")
     else:
       self.redirect('/dashboard')
+
+class PushApiHandler(webapp.RequestHandler):
+  def get(self):
+    foo = json.loads(self.request.get("checkin"))
+    logging.info(foo)
 
 class HuntCreateHandler(webapp.RequestHandler):
   def post(self):
@@ -248,6 +254,7 @@ def main():
     ('/login', LoginHandler),
     ('/logout', LogoutHandler),
     ('/oauth_callback', OAuthCallbackHandler),
+    ('/push_api', PushApiHandler),
     ('/hunt/create', HuntCreateHandler),
     ('/hunt/(.+)/add_venue', HuntAddVenueHandler),
     ('/hunt/(.+)/remove_venue', HuntRemoveVenueHandler),
