@@ -118,8 +118,6 @@ $(function(){
   
   $("#alerts .alert-message").alert();
   
-  $('#host').text('http://' + document.location.host + '/');
-
   var d = new Date();
   var gmtHours = -d.getTimezoneOffset()/60;
   $("#timezone_field").val(gmtHours);
@@ -135,5 +133,8 @@ $(function(){
     hour: date.getHours(),
     minute: date.getMinutes()
   });
+
+  $('#host').text('http://' + document.location.host + '/');
+  $('#hunt-link').attr('href', 'http://' + document.location.host + '/'+ $('#venue_list').data('hunt-id'));
   
 });
