@@ -112,4 +112,13 @@ $(function(){
   });
   
   $("#alerts .alert-message").alert();
+  
+  $('#host').text('http://' + document.location.host + '/');
+
+  var d = new Date();
+  var gmtHours = -d.getTimezoneOffset()/60;
+  $("#timezone_field").val(gmtHours);
+  
+  $('#start_time').datetimepicker();
+  $('#end_time').datetimepicker();
 });
