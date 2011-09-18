@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="group" id="venue_list" data-hunt-id="{{hunt.key}}">
+  <header>
+    <h2>{{hunt.name}}</h2>
+  </header>
+  <h3>Checkpoints</h3>
+  <table id="current_venues">
+    <tbody>
+    {% for venue in venues %}
+      <tr class="venue-item" data-id="{{venue.foursquare_id}}">
+        <td>{{venue.name}}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <h3>Activity</h3>
+  <div>
+    {% for checkin in checkins %}
+      <div>
+        <a href="http://foursquare.com/user/{{checkin.player.user.foursquare_id}}/checkin/{{checkin.foursquare_id}}">
+          {{checkin.player.user.first_name}} {{checkin.player.user.last_name}} just checked in to {{checkin.venue.name}} for {{checkin.venue.difficulty}} points
+        </a> 
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" type="text/css">
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script src="/static/js/bootstrap-alerts.js" type="text/javascript"></script>
+<script src="/static/js/templates.js" type="text/javascript"></script>
+<script type="text/html" id="success_alert_tpl">
+  <div class="alert-message success fade in" data-alert="alert"><a class="close" href="#">&times;</a><p><%= message %></p></div>
+</script>
+<script type="text/html" id="venue_item_tpl">
+  <tr class="venue-item" data-id="<%= id %>">
+    <td><%= name %></td>
+    <td>
+      <select name="difficulty" class="venue_difficulty">
+        <option value="1" selected>Easy</option>
+        <option value="2">Moderate</option>
+        <option value="3">Hard</option>
+      </select>
+    </td>
+    <td><a class="close" href="#">&times;</a></td>
+  </tr>
+</script>
+<script type="text/html" id="venue_list_item_tpl">
+  <li><a href="#" data-id="<%= id %>" class="add_venue"><%= name %></a></li>
+</script>
+<script src="/static/js/jquery.ui.datetimepicker.js" type="text/javascript"></script>
+<script src="/static/js/venues.js" type="text/javascript"></script>
+{% endblock %}
