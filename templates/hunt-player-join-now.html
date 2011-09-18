@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<a href="/{{hunt_key}}/join">Join now!</a>
+<header>
+<h2>{{hunt.name}}</h2>
+</header>
+<p>Are you ready for the hunt?</p>
+<a class="btn info" href="/{{hunt_key}}/join">Join Now</a>
 
 {% endblock %}

@@ -1,6 +1,9 @@
 html, body{
   background: transparent url('/static/img/subtle_freckles.png') repeat scroll 0 0;
 }
+a{
+  color: #4ab2cf;
+}
 
 .group:before,
 .group:after {

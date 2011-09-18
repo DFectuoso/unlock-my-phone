@@ -2,8 +2,12 @@
 {% block javascript %}
 <script type="text/javascript" src="/static/js/jquery.countdown.min.js"></script>
 <script>
+
+  //Pull the date from the database
+  var endDate = new Date(2011, 9-1, 18, 13, 30, 0);
+  
   $(function(){
-    $('#countdown').countdown({until: new Date(2011, 9-1, 18, 13, 30, 0), format: 'HMS'});
+    $('#countdown').countdown({until: endDate, format: 'HMS'});
   })
 </script>
 {% endblock %}
