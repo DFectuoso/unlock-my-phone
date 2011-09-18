@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<section class="group" id="venue_list">
+<section class="group" id="venue_list" data-hunt-id="{{hunt.key}}">
   <header>
     <h3>{{hunt.name}}</h3>
   </header>
   <ul id="current_venues">
     {% for venue in venues %}
-       <li>{{venue.name}}</li>
+       <li class="venue-item" data-id="{{venue.foursquare_id}}"><a class="close" href="#">&times;</a>{{venue.name}}</li>
     {% endfor %}
   </ul>
   <form method="get" id="venue_form">
@@ -27,7 +27,9 @@
 
 {% endblock %}
 {% block javascript %}
+<script src="/static/js/bootstrap-alerts.js" type="text/javascript"></script>
 <script type="text/javascript">
+
 if (Modernizr.geolocation) {
   navigator.geolocation.getCurrentPosition(function(location) {
     $('#venue_list')
@@ -37,10 +39,12 @@ if (Modernizr.geolocation) {
       .data('alt_acc', location.coords.altitudeAcc);
   });
 }
-(function(){
+
+$(function(){
+  
   var $vl = $('#venue_list');
     
-    send_query = function(query_word) {
+  var send_query = function(query_word) {
       var sent_data = {
           ll: $vl.data('ll'),
           ll_act: $vl.data('ll_act'),
@@ -48,50 +52,54 @@ if (Modernizr.geolocation) {
           alt_acc: $vl.data('alt_acc'),
           query: query_word
         };
-      $.getJSON("/venue/search", sent_data, function(data) {
-          var venues = data.response.groups[0].items,
-            $list = $('<div/>');
-            
-          if (venues.length === 0) {
-            console.log('no venues')
-            $list.html('<p>No venues found.</p>');
-          } else {
-            for (i in venues) {
-              var venue = venues[i];
-              if (!!venue) {
-                var venue_tmpl = '<div class="venue">'
-                  +'<a href="#" class="add_venue" data-id="'+venue.id+'">'+venue.name+'</a>'
-                  +'</div>';
-                $list.append(venue_tmpl);
-              }
-            }          
-          }
+      $.ajax({
+          url:        "/venue/search",
+          dataType:   "json", 
+          data:       sent_data, 
+          success:    function(data) {
+                      var venues = data.response.groups[0].items;
+                                  if (venues.length === 0) {
+                        $list = '<p>No venues found.</p>';
+                      } else {
+                        $list = $('<ul/>');
+                        for (i in venues) {
+                          if (!!venues[i]) {
+                            $list.append('<li><a href="#" data-id="'+venues[i].id+'" class="add_venue">'+venues[i].name+'</a></li>');
+                          }
+                        }          
+                      }
+
           
-          $('#venue_map').empty().append($list);
-        }
-      );
-    },
-    delay = (function(){
-      var timer = 0;
-      return function(callback, ms){
-        clearTimeout (timer);
-        timer = setTimeout(callback, ms);
-      };
-    })();;
+                      $('#venue_map').empty().append($list);
+                    }
+      });
+    };
   
-  $('#venue_query').bind('keyup', function() {
-    $this = $(this);
+  var delay = (function(){
+    var timer = 0;
+    return function(callback, ms){
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    };
+  })();
+  
+  $('#venue_query').keyup(function() {
+    $el = $(this); 
     delay(function() {
-      send_query($this.val());
+      send_query($el.val());
     }, 300);
   });
-  
+
   $('#venue_map').delegate('a.add_venue', 'click', function(e) {
     e.preventDefault();
-    venue_id = $(this).data('id');
-    $.get(window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
+    var $el = $(this),
+      venue_id = $el.data('id'),
+      hunt_id = $('#venue_list').data('hunt-id');
+    $.get('/hunt/'+hunt_id+'/add_venue?venue_id=' + venue_id , function(data) {
       if (data === 'Ok') {
-        console.log('todo bien');
+        $('#current_venues')
+          .append('<li class="venue-item" data-id="'+venue_id+'"><a class="close" href="#">&times;</a>'+$el.text()+'</li>');
+        $('<div class="alert-message success"><a class="close" href="#">&times;</a><p>Venue added succesfully</p></div>').appendTo('#alerts');
       } else if (data === "Error") {
         console.log('todo mal');
       } else {
@@ -100,6 +108,26 @@ if (Modernizr.geolocation) {
     });
   });
   
-}());
+  $('#current_venues').delegate('a.close', 'click', function(e) {
+    $el = $(this).closest('.venue-item'),
+      venue_id = $el.data('id'),
+      hunt_id = $('#venue_list').data('hunt-id');
+    
+    $.get('/hunt/'+hunt_id+'/remove_venue?venue_id=' + venue_id, function(data) {
+      if (data === 'Ok') {
+        $el.remove();
+        $('<div class="alert-message success"><a class="close" href="#">&times;</a><p>Venue removed succesfully</p></div>').appendTo('#alerts');
+      } else if (data === "Error") {
+        console.log('todo mal');
+      } else {
+        console.log('todo muy mal');
+      }
+    })
+  });
+  
+  $("#alerts .alert-message").alert();
+});
+
+
 </script>
 {% endblock %}
