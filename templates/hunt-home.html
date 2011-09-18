@@ -12,7 +12,7 @@
   </ul>
   <form method="get" id="venue_form">
       <fieldset>
-          <legend>Search for a venue</legend>
+          <legend>Add a venue</legend>
           <div class="clearfix">
               <label>&nbsp;</label>
               <input type="text" class="span4" name="query" placeholder="Pizza" id="venue_query" />
@@ -57,8 +57,7 @@ $(function(){
           data:       sent_data, 
           success:    function(data) {
                       var venues = data.response.groups[0].items;
-            
-                      if (venues.length === 0) {
+                                  if (venues.length === 0) {
                         $list = '<p>No venues found.</p>';
                       } else {
                         $list = $('<ul/>');
@@ -68,6 +67,7 @@ $(function(){
                           }
                         }          
                       }
+
           
                       $('#venue_map').empty().append($list);
                     }
@@ -89,8 +89,22 @@ $(function(){
     }, 300);
   });
 
+  $('#venue_map').delegate('a.add_venue', 'click', function(e) {
+    e.preventDefault();
+    var venue_id = $(this).data('id');
+    $.get( window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
+      if (data === 'Ok') {
+        console.log('todo bien');
+      } else if (data === "Error") {
+        console.log('todo mal');
+      } else {
+        console.log('todo muy mal');
+      }
+    });
+  });
   
 });
+
 
 </script>
 {% endblock %}
