@@ -4,11 +4,27 @@
 <script>
 navigator.geolocation.getCurrentPosition(GetLocation);
 function GetLocation(location) {
-  console.log(location.coords.latitude);
-  console.log(location.coords.longitude);
-  console.log(location.coords.accuracy);
-  console.log(location.coords.altitude);
-  console.log(location.coords.altitudeAcc);
+  var ll = location.coords.latitude + "," + location.coords.longitude;
+  var ll_act = location.coords.accuracy;
+  var alt = location.coords.altitude + 0;
+  var alt_acc = location.coords.altitudeAcc;
+  $.getJSON("/venue/search",
+    {
+      ll:ll,
+      ll_act:ll_act,
+      alt:alt,
+      alt_acc:alt_acc,
+      query:"pizza"
+    },
+    function(data){
+      var groups = data.response.groups
+      var group = groups[0]
+      var venues = group.items
+      for(var i = 0; i < venues.length; i++){
+        console.log(venues[i]);
+      }
+    }
+  )
 }
 </script>
 

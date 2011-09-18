@@ -108,14 +108,14 @@ class VenueSearchHandler(webapp.RequestHandler):
   def get(self):
     session = get_current_session()
     if session.has_key('user'):
-      query = self.request.get("ll")
-      query = self.request.get("ll_acc")
-      query = self.request.get("alt")
-      query = self.request.get("alt_acc")
+      ll = self.request.get("ll")
+      ll_act = self.request.get("ll_acc")
+      alt = self.request.get("alt")
+      alt_acc = self.request.get("alt_acc")
       query = self.request.get("query")
       user = session["user"]
       client = FoursquareClient(user.access_token)
-      self.response.out.write(client.venues_search(None,None,None,None,query))
+      self.response.out.write(json.dumps(client.venues_search(ll,ll_act,alt,alt_acc,query)))
     else:
       self.response.out.write("Error")
 
