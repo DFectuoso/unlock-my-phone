@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-<header>
-	<h2 class="slogan">Create a personal scavenger hunt.</h2>
-</header>
-To get started, just
-<a href="/login">
-    <img src="/static/img/connect-white.png" alt="Connect with Foursquare" />
-</a>
+<div class="row">
+<header class="span-two-thirds">
+	<h2 class="slogan">Everybody loves Scavenger hunts.</h2> 
+    <h2>We've created an easy way to create awesome<br> 
+    adventures to share with your friends and fans</h2>
 
+    <h3 class="starthunting">Ready to start hunting?</h3>
+    <a href="/login">
+    <img src="/static/img/connect-white.png" alt="Connect with Foursquare" /></a>
+    
+</header>
+
+<div class="span-one-third">
+    <img src="/static/img/badge.png" alt="Scavenger squarehunt" style="display:block;margin:auto">
+    
+    
+</div>
+</div>
 {% endblock %}
