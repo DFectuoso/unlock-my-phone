@@ -40,6 +40,7 @@ class HuntVenue(db.Model):
   name = db.StringProperty(required=False)
   json = db.TextProperty(required=False)
   hunt = db.ReferenceProperty(Hunt, collection_name="venues")
+  difficulty = db.IntegerProperty(default=1)
 
   @staticmethod
   def get_or_create_by_foursquare_id_and_hunt(foursquare_id, hunt):
@@ -226,6 +227,28 @@ class HuntRemoveVenueHandler(webapp.RequestHandler):
     else:
       self.response.out.write("Error")
 
+class HuntChangeVenueWeightHandler(webapp.RequestHandler):
+  def get(self,hunt_key):
+    session = get_current_session()
+    if session.has_key('user'):
+      difficulty = self.request.get("difficulty")
+      try:
+        difficulty = max(1, min(int(self.request.get("difficulty")),3))
+      except ValueError:
+        return
+
+      #get user, hunt and venue_id
+      user = session["user"]
+      hunt = db.get(hunt_key)
+      venue_id = self.request.get("venue_id")
+      # get venue
+      venue = HuntVenue.get_or_create_by_foursquare_id_and_hunt(venue_id,hunt) 
+      venue.difficulty = difficulty
+      venue.put()
+      self.response.out.write("Ok")
+    else:
+      self.response.out.write("Error")
+
 class VenueSearchHandler(webapp.RequestHandler):
   def get(self):
     session = get_current_session()
@@ -283,6 +306,7 @@ def main():
     ('/hunt/create', HuntCreateHandler),
     ('/hunt/(.+)/add_venue', HuntAddVenueHandler),
     ('/hunt/(.+)/remove_venue', HuntRemoveVenueHandler),
+    ('/hunt/(.+)/change_venue_difficulty', HuntChangeVenueWeightHandler),
     ('/hunt/(.+)', HuntHomeHandler),
     ('/venue/search', VenueSearchHandler),
     ('/(.+)/join', HuntPlayerJoinHandler),
