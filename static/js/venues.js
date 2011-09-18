@@ -42,7 +42,6 @@ $(function(){
                           }
                         }          
                       }
-
           
                       $('#venue_map').empty().append($list);
                     }
@@ -75,8 +74,9 @@ $(function(){
     $.get('/hunt/'+hunt_id+'/add_venue?venue_id=' + venue.id , function(data) {
       if (data === 'Ok') {
         $('#current_venues tbody').append(tmpl('venue_item_tpl', venue));
-        
-        $('#alerts').append(tmpl('success_alert_tpl', {message: 'Venue added succesfully'}));
+        $('#alerts').empty().append(tmpl('success_alert_tpl', {message: 'Venue added succesfully'}));
+        $('#venue_map').empty();
+        $('#venue_query').val('');
       } else if (data === "Error") {
         console.log('todo mal');
       } else {
@@ -118,8 +118,6 @@ $(function(){
   
   $("#alerts .alert-message").alert();
   
-  $('#host').text('http://' + document.location.host + '/');
-
   var d = new Date();
   var gmtHours = -d.getTimezoneOffset()/60;
   $("#timezone_field").val(gmtHours);
@@ -135,5 +133,8 @@ $(function(){
     hour: date.getHours(),
     minute: date.getMinutes()
   });
+
+  $('#host').text('http://' + document.location.host + '/');
+  $('#hunt-link').attr('href', 'http://' + document.location.host + '/'+ $('#venue_list').data('hunt-id'));
   
 });
