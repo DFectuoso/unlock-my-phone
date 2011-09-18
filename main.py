@@ -194,6 +194,10 @@ class HuntHomeHandler(webapp.RequestHandler):
     else:
       self.redirect("/")
 
+class HuntChangeTimeConfigHandler(webapp.RequestHandler):
+  def get(self,hunt_key):
+      self.redirect("/")
+
 class HuntAddVenueHandler(webapp.RequestHandler):
   def get(self,hunt_key):
     session = get_current_session()
@@ -319,6 +323,7 @@ def main():
     ('/hunt/(.+)/add_venue', HuntAddVenueHandler),
     ('/hunt/(.+)/remove_venue', HuntRemoveVenueHandler),
     ('/hunt/(.+)/change_venue_difficulty', HuntChangeVenueWeightHandler),
+    ('/hunt/(.+)/set_start_end_time', HuntChangeTimeConfigHandler),
     ('/hunt/(.+)', HuntHomeHandler),
     ('/venue/search', VenueSearchHandler),
     ('/(.+)/join', HuntPlayerJoinHandler),
