@@ -28,7 +28,12 @@ $(function(){
                       var venues = data.response.groups[0].items;
                       
                       if (venues.length === 0) {
-                        $list = '<p>No venues found.</p>';
+                        if(!sent_data.ll){
+                          $list = '<p>This page doesn\'t have access to your location. We need that information to find relevant venues.</p>';
+                        }
+                        else{
+                          $list = '<p>No venues found.</p>';
+                        }
                       } else {
                         $list = $('<ul/>');
                         for (var i = 0; i < venues.length; i++) {
