@@ -1,8 +1,8 @@
 import urllib, urllib2
+import json
 
 def postData(url):
-    checkin = { 'checkin':
-        { "id": "4e6fe1404b90c00032eeac34",
+    checkinData = json.dumps( { "id": "4e6fe1404b90c00032eeac34",
             "createdAt": 1315955008,
             "type": "checkin",
             "timeZone": "America/New_York",
@@ -39,13 +39,11 @@ def postData(url):
                     } ],
                 "verified":True,
                 "stats": { "checkinsCount": 7313, "usersCount": 565, "tipCount": 128 },
-                "url": "http://foursquare.com"
-            }
-        }
-    }
+                "url": "http://foursquare.com" } })
+    checkin = { 'checkin': checkinData}
 
-    postData = urllib.urlencode(checkin)
-    req = urllib2.Request(url, postData)
+    pData = urllib.urlencode(checkin)
+    req = urllib2.Request(url, pData)
     print urllib2.urlopen(req).read()
 
 postData('http://localhost:9119/push_api')
