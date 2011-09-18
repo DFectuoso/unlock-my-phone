@@ -3,21 +3,21 @@
 
 <section class="group" id="venue_list" data-hunt-id="{{hunt.key}}">
   <header>
-    <h3>{{hunt.name}}</h3>
+    <p class="desc">Your Hunt</p>
+    <h2>{{hunt.name}}</h2>
   </header>
+  <h3>Checkpoints</h3>
   <ul id="current_venues">
     {% for venue in venues %}
        <li class="venue-item" data-id="{{venue.foursquare_id}}"><a class="close" href="#">&times;</a>{{venue.name}}</li>
     {% endfor %}
   </ul>
-  <form method="get" id="venue_form">
-      <fieldset>
-          <legend>Add a venue</legend>
-          <div class="clearfix">
-              <label>&nbsp;</label>
-              <input type="text" class="span4" name="query" placeholder="Pizza" id="venue_query" />
-          </div>
-      </fieldset>
+  <h3>Add a new checkpoint</h3>
+  <form method="get" class="" id="venue_form">
+    <div class="clearfix">
+      <label>Type a venue</label>
+      <input type="text" name="query" placeholder="Pizza" id="venue_query" />
+    </div>
   </form>
   <div id="venue_map">
     

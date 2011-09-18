@@ -49,23 +49,62 @@
 </head>
 
 <body>
-
-<div class="container">
-  <header class="page-header">
-    
-    <a href="/"><img src="/static/img/squarehunt_logo_200px.png"/></a>
-    
-  </header>
-  <div id="alerts"></div>
-	<div class="content">
-    {% block content %}{% endblock %}
+  <style>
+    header.page-header{
+      overflow: hidden;
+      background: transparent;
+      margin-bottom: 0;
+      border-bottom: none;
+      position: relative;
+    }
+    .logo{
+      display: block;
+      float: left;
+    }
+    #login-nav{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding-bottom: 1em;
+      padding-right: 1em;
+    }
+    .content{
+      padding: 3em;
+    }
+    .content h2{
+      font-size: 2.5em;
+      letter-spacing: -0.05em;
+      margin-bottom: 0.5em;
+    }
+    .content h3{
+      color: #fd5800;
+      margin-bottom: 0.5em;
+    }
+    header p.desc{
+      text-transform: uppercase;
+      color: #AAA;
+      margin-bottom: 0;
+    }
+    input[type="text"]{
+      margin-left: 10px;
+    }
+  </style>
+  <div class="container">
+    <header class="page-header">   
+      <a class="logo" href="/"><img src="/static/img/squarehunt_logo_200px.png"/></a>
+      <div id="login-nav">
+        <span id="welcome">Welcome {{ user.first_name }} {{ user.last_name }}  |  </span>
+        <a href ="/logout">Logout</a>
+      </div>
+    </header>
+    <div id="alerts"></div>
+  	<div class="content">
+      {% block content %}{% endblock %}
+    </div>
+    <footer>
+  		<p><small>Built during the 4sqhackaton on September 2011</small></p>
+    </footer>
   </div>
-  <footer>
-
-  		<p><small>Built in 4sqhackaton on september 2011</small></p>
-
-  	</footer>
-</div>
 
 <!-- here comes the javascript -->
 
