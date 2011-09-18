@@ -28,6 +28,7 @@
 {% endblock %}
 {% block javascript %}
 <script type="text/javascript">
+
 if (Modernizr.geolocation) {
   navigator.geolocation.getCurrentPosition(function(location) {
     $('#venue_list')
@@ -37,10 +38,12 @@ if (Modernizr.geolocation) {
       .data('alt_acc', location.coords.altitudeAcc);
   });
 }
-(function(){
+
+$(function(){
+  
   var $vl = $('#venue_list');
     
-    send_query = function(query_word) {
+  var send_query = function(query_word) {
       var sent_data = {
           ll: $vl.data('ll'),
           ll_act: $vl.data('ll_act'),
@@ -48,48 +51,48 @@ if (Modernizr.geolocation) {
           alt_acc: $vl.data('alt_acc'),
           query: query_word
         };
-      $.getJSON("/venue/search", sent_data, function(data) {
-          var venues = data.response.groups[0].items,
-            $list = $('<div/>');
-            
-          if (venues.length === 0) {
-            console.log('no venues')
-            $list.html('<p>No venues found.</p>');
-          } else {
-            for (i in venues) {
-              var venue = venues[i];
-              if (!!venue) {
-                var venue_tmpl = '<div class="venue">'
-                  +'<a href="#" class="add_venue" data-id="'+venue.id+'">'+venue.name+'</a>'
-                  +'</div>';
-                $list.append(venue_tmpl);
-              }
-            }          
-          }
+      $.ajax({
+          url:        "/venue/search",
+          dataType:   "json", 
+          data:       sent_data, 
+          success:    function(data) {
+                      var venues = data.response.groups[0].items;
+                                  if (venues.length === 0) {
+                        $list = '<p>No venues found.</p>';
+                      } else {
+                        $list = $('<ul/>');
+                        for (i in venues) {
+                          if (!!venues[i]) {
+                            $list.append('<li><a href="#" class="add_venue">'+venues[i].name+'</a></li>');
+                          }
+                        }          
+                      }
+
           
-          $('#venue_map').empty().append($list);
-        }
-      );
-    },
-    delay = (function(){
-      var timer = 0;
-      return function(callback, ms){
-        clearTimeout (timer);
-        timer = setTimeout(callback, ms);
-      };
-    })();;
+                      $('#venue_map').empty().append($list);
+                    }
+      });
+    };
   
-  $('#venue_query').bind('keyup', function() {
-    $this = $(this);
+  var delay = (function(){
+    var timer = 0;
+    return function(callback, ms){
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    };
+  })();
+  
+  $('#venue_query').keyup(function() {
+    $el = $(this); 
     delay(function() {
-      send_query($this.val());
+      send_query($el.val());
     }, 300);
   });
-  
+
   $('#venue_map').delegate('a.add_venue', 'click', function(e) {
     e.preventDefault();
-    venue_id = $(this).data('id');
-    $.get(window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
+    var venue_id = $(this).data('id');
+    $.get( window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
       if (data === 'Ok') {
         console.log('todo bien');
       } else if (data === "Error") {
@@ -100,6 +103,8 @@ if (Modernizr.geolocation) {
     });
   });
   
-}());
+});
+
+
 </script>
 {% endblock %}

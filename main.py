@@ -129,6 +129,7 @@ class OAuthCallbackHandler(webapp.RequestHandler):
 
 class PushApiHandler(webapp.RequestHandler):
   def post(self):
+    logging.info(self.request.get("checkin"))
     foo = json.loads(self.request.get("checkin"))
     logging.info(foo)
 
