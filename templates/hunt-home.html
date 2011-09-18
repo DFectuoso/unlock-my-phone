@@ -38,11 +38,11 @@
   <form method="get" target="/hunt/{{hunt_key}}/set_start_end_time">
     <div class="clearfix">
       <label>Start Time</label>
-      <input type="text" name="start_time" placeholder="DD/MM/YY" id="start_time" />
+      <input type="text" name="start_time" placeholder="MM/DD/YY" id="start_time" />
     </div>
     <div class="clearfix">
       <label>End Time</label>
-      <input type="text" name="end_time" placeholder="DD/MM/YY" id="end_time" />
+      <input type="text" name="end_time" placeholder="MM/DD/YY" id="end_time" />
     </div>
     <input name="timezone" id="timezone_field" type="hidden"/>
   </form>
@@ -53,7 +53,11 @@
 
 
 {% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" type="text/css">
+{% endblock %}
 {% block javascript %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 <script src="/static/js/bootstrap-alerts.js" type="text/javascript"></script>
 <script src="/static/js/templates.js" type="text/javascript"></script>
 <script type="text/html" id="success_alert_tpl">
@@ -75,14 +79,6 @@
 <script type="text/html" id="venue_list_item_tpl">
   <li><a href="#" data-id="<%= id %>" class="add_venue"><%= name %></a></li>
 </script>
+<script src="/static/js/jquery.ui.datetimepicker.js" type="text/javascript"></script>
 <script src="/static/js/venues.js" type="text/javascript"></script>
-<script>
-  $(function(){
-    $('#host').text('http://' + document.location.host + '/');
-
-    var d = new Date();
-    var gmtHours = -d.getTimezoneOffset()/60;
-    $("#timezone_field").val(gmtHours);
-  })
-</script>
 {% endblock %}
