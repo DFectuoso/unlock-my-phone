@@ -3,10 +3,10 @@ from google.appengine.ext.webapp import util, template
 
 from foursquare import *
 from google.appengine.api import urlfetch
-import logging  
+import logging 
 import keys
 
-from django.utils import simplejson as json 
+from django.utils import simplejson as json
 from gaesessions import get_current_session
 
 helper = FoursquareAuthHelper(keys.foursquare_client, keys.foursquare_secret, keys.foursquare_callback)
@@ -45,7 +45,7 @@ class Venue(db.Model):
   foursquare_id = db.StringProperty(required=False)
   name = db.StringProperty(required=False)
   json = db.TextProperty(required=False)
- 
+
   @staticmethod
   def get_or_create_by_foursquare_id(id):
     venue_query = Venue.all().filter("foursquare_id", id).fetch(1)
@@ -54,7 +54,7 @@ class Venue(db.Model):
       venue.put()
     else:
       venue = venue_query[0]
-    return venue 
+    return venue
 
   def update_info(self,venue_info):
     self.json = json.dumps(venue_info["response"]["venue"])
@@ -71,7 +71,7 @@ class MainHandler(webapp.RequestHandler):
       self.response.out.write(template.render('templates/main.html', locals()))
 
 class DashboardHandler(webapp.RequestHandler):
-  def get(self): 
+  def get(self):
     session = get_current_session()
     if session.has_key('user'):
       user = session["user"]
@@ -98,18 +98,18 @@ class LogoutHandler(webapp.RequestHandler):
 
 class OAuthCallbackHandler(webapp.RequestHandler):
   def get(self):
-    code = self.request.get("code")                                           
+    code = self.request.get("code")                                          
     token_url = helper.get_access_token_url(code)
     logging.info(token_url)
-    result = urlfetch.fetch(token_url)                                        
+    result = urlfetch.fetch(token_url)                                       
     result = json.loads(result.content)
 
-    client = FoursquareClient(result["access_token"])                         
+    client = FoursquareClient(result["access_token"])                        
     user_info = client.users()
     user = User.get_or_create_user_by_foursquare_id(user_info["response"]["user"]["id"])
     user.first_name = user_info["response"]["user"]["firstName"]
     user.last_name  = user_info["response"]["user"]["lastName"]
-    user.access_token = result["access_token"] 
+    user.access_token = result["access_token"]
     user.put()
 
     session = get_current_session()
@@ -120,8 +120,8 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     if session.is_active():
       session.terminate()
     session.regenerate_id()
-    session['user'] = user 
-    
+    session['user'] = user
+   
     if hunt_to_redirect is not "":
       self.redirect('/' + hunt_to_redirect + "/join")
     else:
@@ -144,7 +144,7 @@ class HuntCreateHandler(webapp.RequestHandler):
       self.redirect("/hunt/" + str(hunt.key()))
     else:
       self.redirect("/")
- 
+
 class HuntHomeHandler(webapp.RequestHandler):
   def get(self,hunt_key):
     session = get_current_session()
@@ -167,8 +167,8 @@ class HuntAddVenueHandler(webapp.RequestHandler):
       venue_id = self.request.get("venue_id")
       # get venue
       venue = Venue.get_or_create_by_foursquare_id(venue_id)
-      
-      # update venue 
+     
+      # update venue
       client = FoursquareClient(user.access_token)
       venue.update_info(client.venues(venue_id))
 
@@ -179,7 +179,7 @@ class HuntAddVenueHandler(webapp.RequestHandler):
       self.response.out.write("Ok")
     else:
       self.response.out.write("Error")
- 
+
 class HuntRemoveVenueHandler(webapp.RequestHandler):
   def get(self,hunt_key):
     session = get_current_session()
@@ -190,8 +190,8 @@ class HuntRemoveVenueHandler(webapp.RequestHandler):
       venue_id = self.request.get("venue_id")
       # get venue
       venue = Venue.get_or_create_by_foursquare_id(venue_id)
-      
-      # update venue 
+     
+      # update venue
       client = FoursquareClient(user.access_token)
       venue.update_info(client.venues(venue_id))
 
@@ -241,7 +241,7 @@ class HuntPlayerJoinHandler(webapp.RequestHandler):
       user = session["user"]
       hunt_player = HuntPlayer.all().filter("user",user).filter("hunt",hunt).fetch(1)
       if len(hunt_player) == 0:
-        hunt_player = HuntPlayer(user=user,hunt=hunt) 
+        hunt_player = HuntPlayer(user=user,hunt=hunt)
         hunt_player.put()
         # Start crawling foursquare for life yeah, for, this, user.
       self.redirect("/" + hunt_key)
