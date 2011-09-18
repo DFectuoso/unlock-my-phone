@@ -44,26 +44,17 @@
     font-size: 3em;
     font-weight: bold;
   }
-  #login img{
-    padding-top: 7px;
-    padding-left: 20px;
-    display: block;
-  }
+
+
+
 </style>
 <header class="span-two-thirds great">
   <img class="logo desktop" src="/static/img/squarehunt_logo_400px.png">
   <img class="logo mobile" style="display:none" src="/static/img/squarehunt_logo_200px.png">
-  <h1>{{hunt.user.first_name}} {{hunt.user.last_name}} is organizing a scavenger hunt!</h1>
-
-  <p class="teaser">Squarehunt is an easy way to join awesome adventures friends and fans have organized for you.</p>
-  <!-- <p>{{hunt.name}} is waiting for you</p> -->
+  <h1>You have joined {{hunt.user.first_name}} {{hunt.user.last_name}}'s hunt, now wait for it to start!</h1>
   <div id="time-left">
     <h3>This hunt will start in</h3>
     <div id="countdown"></div>
   </div>
-  <h3 class="starthunting">I'm ready to start hunting</h3>
-  <a id="login" href="/{{hunt_key}}/join">
-    <img src="/static/img/connect-white.png" alt="Connect with Foursquare" />
-  </a>
 </header>
 {% endblock %}

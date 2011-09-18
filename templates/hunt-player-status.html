@@ -4,7 +4,7 @@
 <script>
 
   //Pull the date from the database
-  var endDate = new Date(2011, 9-1, 18, 13, 30, 0);
+  var endDate = new Date({{hunt.end_time_gmt|date:"U"}} * 1000);
   
   $(function(){
     $('#countdown').countdown({until: endDate, format: 'HMS'});

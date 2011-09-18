@@ -1,0 +1,25 @@
+{% extends 'home_base.html' %}
+{% block content %}
+<style type="text/css" media="screen">
+  .content {
+    padding: 4em;
+    overflow: hidden;
+    background: url("/static/img/girl_with_map.png") no-repeat scroll 95% 100% #FFFFFF;
+  }
+  .teaser {
+      font-size: 1.5em;
+      line-height: 1.4;
+      margin-bottom: 1em;
+  }
+  h3, .starthunting {
+      color: #FD5800;
+      float: left;
+      margin-top: 0;
+  }
+</style>
+<header class="span-two-thirds great">
+  <img class="logo desktop" src="/static/img/squarehunt_logo_400px.png">
+  <img class="logo mobile" style="display:none" src="/static/img/squarehunt_logo_200px.png">
+  <h1>This hunt is over, thank you very much</h1>
+</header>
+{% endblock %}

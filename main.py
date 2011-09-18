@@ -5,6 +5,8 @@ from foursquare import *
 from google.appengine.api import urlfetch
 import logging
 import keys
+import datetime
+
 from twilio_helper import alertAllPlayers, alertAllPlayersButMe, alertPlayer
 
 from django.utils import simplejson as json
@@ -31,9 +33,13 @@ class User(db.Model):
     return user
 
 class Hunt(db.Model):
-  name = db.StringProperty(required=False)
-  user = db.ReferenceProperty(User, collection_name='hunts')
-  created = db.DateTimeProperty(auto_now_add=True)
+  name             = db.StringProperty(required=False)
+  user             = db.ReferenceProperty(User, collection_name='hunts')
+  created          = db.DateTimeProperty(auto_now_add=True)
+  start_time_gmt   = db.DateTimeProperty()
+  start_time_local = db.DateTimeProperty()
+  end_time_gmt     = db.DateTimeProperty()
+  end_time_local   = db.DateTimeProperty()
 
 class HuntVenue(db.Model):
   foursquare_id = db.StringProperty(required=False)
@@ -162,8 +168,11 @@ class PushApiHandler(webapp.RequestHandler):
           hunt_checkin = HuntCheckin(player = player, hunt = hunt, venue=venue)
           # TODO add some metadata from foursquare
           hunt_checkin.put()
-          # TODO substitute points with an actual number
-          alertPlayer(player, "You found a checkpoint worth something points! On to the next one! Hurry!")
+
+          points_word = "point"
+          if hunt_checkin.venue.difficulty > 1:
+            points_word = "points"
+          alertPlayer(player, "You found a checkpoint worth " + str(hunt_checkin.venue.difficulty) + " " + points_word + "! On to the next one! Hurry!")
           alertAllPlayersButMe(player, hunt, player.user.first_name + " just found a checkpoint! Better get movin'!")
           logging.info("We are in, lets do yea and yea")
         else:
@@ -195,8 +204,33 @@ class HuntHomeHandler(webapp.RequestHandler):
       self.redirect("/")
 
 class HuntChangeTimeConfigHandler(webapp.RequestHandler):
-  def get(self,hunt_key):
-      self.redirect("/")
+  def post(self,hunt_key):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      hunt = db.get(hunt_key)
+      
+      try:
+        timezone_delta = int(self.request.get("timezone"))
+        parsed_date_time_start = datetime.datetime.strptime(self.request.get("start_time"),"%m/%d/%Y %H:%M")
+        parsed_date_time_end   = datetime.datetime.strptime(self.request.get("end_time"),"%m/%d/%Y %H:%M")
+
+        parsed_date_time_start_with_timezone = parsed_date_time_start + datetime.timedelta(hours=-timezone_delta)
+        parsed_date_time_end_with_timezone = parsed_date_time_end + datetime.timedelta(hours=-timezone_delta)
+
+        hunt.start_time_gmt = parsed_date_time_start_with_timezone
+        hunt.end_time_gmt   = parsed_date_time_end_with_timezone
+
+        hunt.start_time_local   = parsed_date_time_start
+        hunt.end_time_local   = parsed_date_time_end
+
+        hunt.put()
+        self.redirect("/hunt/" + hunt_key)
+      except ValueError:
+        logging.info("Failed to parse dates")
+        self.redirect("/hunt/" + hunt_key)
+    else:
+      self.redirect("/hunt/" + hunt_key)
 
 class HuntAddVenueHandler(webapp.RequestHandler):
   def get(self,hunt_key):
@@ -278,19 +312,31 @@ class HuntPlayerHomeHandler(webapp.RequestHandler):
       if len(hunt_player) == 0:
         self.response.out.write(template.render('templates/hunt-player-join-now.html', locals()))
       else:
-        hunt_player = hunt_player[0]
-        venues = hunt_player.hunt.venues
-        venues_for_display = []
-        checkins = HuntCheckin.all().filter("player", hunt_player).fetch(1000)
-        for venue in venues:
-          data = (venue.name, False)
-          for checkin in checkins:
-            if str(venue.key()) == str(checkin.venue.key()):
-              data = (venue.name, True)
+        # has it started?
+        if hunt.start_time_gmt < datetime.datetime.now():
+          # has it ended?
+          if hunt.end_time_gmt < datetime.datetime.now():
+            # It ended allready
+            self.response.out.write(template.render('templates/hunt-finished.html', locals()))
+            
+          else:
+            # we are playing at the moment
+            hunt_player = hunt_player[0]
+            venues = hunt_player.hunt.venues
+            venues_for_display = []
+            checkins = HuntCheckin.all().filter("player", hunt_player).fetch(1000)
+            for venue in venues:
+              data = (venue.name, False)
+              for checkin in checkins:
+                if str(venue.key()) == str(checkin.venue.key()):
+                  data = (venue.name, True)
+  
+              venues_for_display.append(data)
 
-          venues_for_display.append(data)
+            self.response.out.write(template.render('templates/hunt-player-status.html', locals()))
 
-        self.response.out.write(template.render('templates/hunt-player-status.html', locals()))
+        else: 
+          self.response.out.write(template.render('templates/hunt-player-joined-now-wait.html', locals()))
       # Did he join already?
     else:
       self.response.out.write(template.render('templates/hunt-player-join-now.html', locals()))
