@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
-STATUS {{hunt.name}}
+{{ hunt.name }}
+
+<ul>
+{% for venue in venues_for_display %}
+<li>{{ venue.0 }} {% if venue.1 %}checkmark {% endif %}</li>
+{% endfor %}
+</ul>
 
 {% endblock %}
