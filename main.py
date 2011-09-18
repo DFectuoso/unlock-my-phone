@@ -5,7 +5,7 @@ from foursquare import *
 from google.appengine.api import urlfetch
 import logging
 import keys
-from twilio_helper import alertAllPlayers
+from twilio_helper import alertAllPlayers, alertAllPlayersButMe
 
 from django.utils import simplejson as json
 from gaesessions import get_current_session
@@ -131,7 +131,6 @@ class OAuthCallbackHandler(webapp.RequestHandler):
 
 class PushApiHandler(webapp.RequestHandler):
   def post(self):
-    alertAllPlayers(Hunt.all().fetch(1)[0])
     checkin_info = json.loads(self.request.get("checkin"))
     user_id      = checkin_info["user"]["id"]
     venue_id     = checkin_info["venue"]["id"]
@@ -139,14 +138,19 @@ class PushApiHandler(webapp.RequestHandler):
     # get user and venue, if we don't have a valid one, we don't care about this check in
     user = User.all().filter("foursquare_id",user_id).fetch(1)
     venue = Venue.all().filter("foursquare_id",venue_id).fetch(1)
+
     if len(user) == 1 and len(venue) == 1:
       user = user[0]
       venue = venue[0]
+
       #TODO only do this for players of ACTIVE hunts
-      hunt_player = HuntPlayer.all().filter("user",user).order("-started_playing").fetch(1)
-      # We need to check that the user is playing
+      # We assume that the player is playing a game right now
+      hunt_player = HuntPlayer.all().filter("user", user).order("-started_playing").fetch(1)
+
       if len(hunt_player) == 1:
         hunt_player = hunt_player[0]
+        active_hunt = hunt_player.hunt
+        alertAllPlayersButMe(hunt_player, active_hunt, hunt_player.user.first_name + " just joined the hunt!")
         # We need to make sure the user has not been on this location before
         if hunt_player.venues.count(venue.key()) == 0:
           hunt_player.venues.append(venue.key())
@@ -270,6 +274,7 @@ class HuntPlayerJoinHandler(webapp.RequestHandler):
       if len(hunt_player) == 0:
         hunt_player = HuntPlayer(user=user,hunt=hunt)
         hunt_player.put()
+        alertAllPlayersButMe(hunt_player, hunt, hunt_player.user.first_name + " just joined the hunt!")
         # Start crawling foursquare for life yeah, for, this, user.
       self.redirect("/" + hunt_key)
     else:

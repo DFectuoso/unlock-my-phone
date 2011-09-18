@@ -1,10 +1,16 @@
 import urllib, urllib2, base64, logging, keys
 
 def alertAllPlayers(hunt, msg):
-  logging.info(hunt)
-  logging.info(hunt.players)
   for player in hunt.players:
+    logging.info(player.user.first_name)
     sendSMS(player.user.phone_number, msg)
+
+# Takes a HuntPlayer
+def alertAllPlayersButMe(current_player, hunt, msg):
+  for player in hunt.players:
+    if str(current_player.key()) != str(player.key()):
+      logging.info(player.user.first_name)
+      sendSMS(player.user.phone_number, msg)
 
 def sendSMS(phone_number, msg):
   logging.info("sending an sms to a player")
