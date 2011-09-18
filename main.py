@@ -96,6 +96,16 @@ class HuntCreateHandler(webapp.RequestHandler):
     else:
       self.redirect("/")
  
+class HuntHomeHandler(webapp.RequestHandler):
+  def get(self,hunt_key):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      hunt = db.get(hunt_key)
+      self.response.out.write(template.render("templates/hunt-home.html",locals()))
+    else:
+      self.redirect("/")
+
 class HuntAddVenueHandler(webapp.RequestHandler):
   def get(self):
     session = get_current_session()
@@ -145,7 +155,7 @@ def main():
     ('/hunt/create', HuntCreateHandler),
     ('/hunt/add_venue', HuntAddVenueHandler),
     ('/hunt/remove_venue', HuntRemoveVenueHandler),
-    ('/hunt/(.+)', HuntCreateHandler),
+    ('/hunt/(.+)', HuntHomeHandler),
     ('/venue/search', VenueSearchHandler),
   ], debug=True)
   util.run_wsgi_app(application)
