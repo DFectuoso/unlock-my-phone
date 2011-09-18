@@ -7,7 +7,7 @@
   {% for hunt in hunts %}
     <tr class="hunt-item">
       <td>{{hunt.name}}</td>
-      <td><a href="/hunt/{{hunt.key}}">Edit</a></td>
+      <td><a href="/hunt/{{hunt.key}}">Edit</a> / <a href="/hunt/{{hunt.key}}/activity">Activity</a></td>
       <td><a href="/{{hunt.key}}">Public Link</a></td>
       <!-- <td><a class="close" href="#">&times;</a></td> -->
     </tr>

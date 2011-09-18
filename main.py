@@ -173,7 +173,7 @@ class PushApiHandler(webapp.RequestHandler):
         hunt_checkin = HuntCheckin.all().filter("player", player).filter("hunt", hunt).filter("venue", venue).fetch(1)
 
         if len(hunt_checkin) == 0:
-          hunt_checkin = HuntCheckin(player = player, hunt = hunt, venue=venue)
+          hunt_checkin = HuntCheckin(player = player, hunt = hunt, venue=venue, foursquare_id=checkin_info["id"])
           # TODO add some metadata from foursquare
           hunt_checkin.put()
 
@@ -369,6 +369,16 @@ class HuntPlayerJoinHandler(webapp.RequestHandler):
     else:
       self.redirect("/login?hunt_key="+hunt_key)
 
+class HuntActivityHandler(webapp.RequestHandler):
+  def get(self,hunt_key):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session['user']
+    hunt = db.get(hunt_key)
+    venues = hunt.venues
+    checkins = HuntCheckin.all().filter("hunt",hunt).fetch(1000) 
+    self.response.out.write(template.render('templates/hunt-activity.html', locals()))
+
 class HuntAddPhoneHandler(webapp.RequestHandler):
   def get(self):
     session = get_current_session()
@@ -411,6 +421,7 @@ def main():
     ('/hunt/(.+)/remove_venue', HuntRemoveVenueHandler),
     ('/hunt/(.+)/change_venue_difficulty', HuntChangeVenueWeightHandler),
     ('/hunt/(.+)/set_start_end_time', HuntChangeTimeConfigHandler),
+    ('/hunt/(.+)/activity', HuntActivityHandler),
     ('/hunt/(.+)', HuntHomeHandler),
     ('/venue/search', VenueSearchHandler),
     ('/(.+)/join', HuntPlayerJoinHandler),
