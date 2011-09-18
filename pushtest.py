@@ -7,7 +7,7 @@ def postData(url):
             "type": "checkin",
             "timeZone": "America/New_York",
             "user": {
-                "id": "1",
+                "id": "13649491",
                 "firstName": "Jimmy",
                 "lastName": "Foursquare",
                 "photo": "https://foursquare.com/img/blank_boy.png",
@@ -15,7 +15,7 @@ def postData(url):
                 "homeCity": "New York, NY",
                 "relationship": "self" },
             "venue": {
-                "id": "4ab7e57cf964a5205f7b20e3",
+                "id": "4bda14022a3a0f47fea8a9b6",
                 "name": "foursquare HQ",
                 "contact": { "twitter": "foursquare" },
                 "location": {
