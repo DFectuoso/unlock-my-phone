@@ -1,36 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<script>
-navigator.geolocation.getCurrentPosition(GetLocation);
-function GetLocation(location) {
-  var ll = location.coords.latitude + "," + location.coords.longitude;
-  var ll_act = location.coords.accuracy;
-  var alt = location.coords.altitude + 0;
-  var alt_acc = location.coords.altitudeAcc;
-  $.getJSON("/venue/search",
-    {
-      ll:ll,
-      ll_act:ll_act,
-      alt:alt,
-      alt_acc:alt_acc,
-      query:"pizza"
-    },
-    function(data){
-      var groups = data.response.groups
-      var group = groups[0]
-      var venues = group.items
-      for(var i = 0; i < venues.length; i++){
-        console.log(venues[i]);
-      }
-    }
-  )
-}
-</script>
-
 Sup {{hunt.name}}
 {% for venue in venues %}
   {{venue.name}}<br/>
 {% endfor %}
 
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+if (Modernizr.geolocation) {
+  navigator.geolocation.getCurrentPosition(function(location) {
+    var sent_data = {
+      ll: location.coords.latitude + "," + location.coords.longitude,
+      ll_act: location.coords.accuracy,
+      alt: location.coords.altitude + 0,
+      alt_acc: location.coords.altitudeAcc,
+      query: "pizza"
+    };
+    $.getJSON("/venue/search", sent_data, function(data) {
+        var groups = data.response.groups,
+          group = groups[0],
+          venues = group.items;
+          
+        for (i in venues) {
+          console.log(venues[i]);
+        }
+      }
+    );
+  });
+}
+</script>
 {% endblock %}
