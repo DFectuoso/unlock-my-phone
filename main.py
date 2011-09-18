@@ -16,6 +16,7 @@ class User(db.Model):
   foursquare_id = db.StringProperty(required=False)
   first_name    = db.StringProperty(required=False)
   last_name     = db.StringProperty(required=False)
+  created = db.DateTimeProperty(auto_now_add=True)
 
   @staticmethod
   def get_or_create_user_by_foursquare_id(id):
@@ -27,10 +28,18 @@ class User(db.Model):
       user = user_query[0]
     return user
 
+
 class Hunt(db.Model):
   name = db.StringProperty(required=False)
   user = db.ReferenceProperty(User, collection_name='hunts')
   venues = db.ListProperty(db.Key)
+  created = db.DateTimeProperty(auto_now_add=True)
+
+class HuntPlayer(db.Model):
+  user = db.ReferenceProperty(User, collection_name="playing_hunts")
+  hunt = db.ReferenceProperty(Hunt, collection_name="players")
+  venues = db.ListProperty(db.Key)
+  started_playing = db.DateTimeProperty(auto_now_add=True)
 
 class Venue(db.Model):
   foursquare_id = db.StringProperty(required=False)
@@ -52,7 +61,6 @@ class Venue(db.Model):
     self.name = venue_info["response"]["venue"]["name"]
     self.id = venue_info["response"]["venue"]["id"]
     self.put()
-  
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
@@ -74,6 +82,10 @@ class DashboardHandler(webapp.RequestHandler):
 
 class LoginHandler(webapp.RequestHandler):
   def get(self):
+    hunt_key = self.request.get("hunt_key")
+    if len(hunt_key) > 0:
+      session = get_current_session()
+      session["login_redirect_to_hunt"] = hunt_key
     self.redirect(helper.get_authentication_url())
 
 class LogoutHandler(webapp.RequestHandler):
@@ -100,11 +112,19 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     user.put()
 
     session = get_current_session()
+    hunt_to_redirect = ""
+    if session.has_key('login_redirect_to_hunt'):
+      hunt_to_redirect = session["login_redirect_to_hunt"]
+
     if session.is_active():
       session.terminate()
     session.regenerate_id()
     session['user'] = user 
-    self.redirect('/dashboard')
+    
+    if hunt_to_redirect is not "":
+      self.redirect('/' + hunt_to_redirect + "/join")
+    else:
+      self.redirect('/dashboard')
 
 class HuntCreateHandler(webapp.RequestHandler):
   def post(self):
@@ -191,6 +211,36 @@ class VenueSearchHandler(webapp.RequestHandler):
     else:
       self.response.out.write("Error")
 
+class HuntPlayerHomeHandler(webapp.RequestHandler):
+  def get(self,hunt_key):
+    hunt = db.get(hunt_key)
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      hunt_player = HuntPlayer.all().filter("user",user).filter("hunt",hunt).fetch(1)
+      if len(hunt_player) == 0:
+        self.response.out.write(template.render('templates/hunt-player-join-now.html', locals()))
+      else:
+        self.response.out.write(template.render('templates/hunt-player-status.html', locals()))
+      # Did he join already?
+    else:
+      self.response.out.write(template.render('templates/hunt-player-join-now.html', locals()))
+
+class HuntPlayerJoinHandler(webapp.RequestHandler):
+  def get(self,hunt_key):
+    hunt = db.get(hunt_key)
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      hunt_player = HuntPlayer.all().filter("user",user).filter("hunt",hunt).fetch(1)
+      if len(hunt_player) == 0:
+        hunt_player = HuntPlayer(user=user,hunt=hunt) 
+        hunt_player.put()
+        # Start crawling foursquare for life yeah, for, this, user.
+      self.redirect("/" + hunt_key)
+    else:
+      self.redirect("/login?hunt_key="+hunt_key)
+
 def main():
   application = webapp.WSGIApplication([
     ('/', MainHandler),
@@ -203,6 +253,9 @@ def main():
     ('/hunt/(.+)/remove_venue', HuntRemoveVenueHandler),
     ('/hunt/(.+)', HuntHomeHandler),
     ('/venue/search', VenueSearchHandler),
+    ('/(.+)/join', HuntPlayerJoinHandler),
+    ('/(.+)', HuntPlayerHomeHandler),
+
   ], debug=True)
   util.run_wsgi_app(application)
 
