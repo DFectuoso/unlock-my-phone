@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<section class="group" id="venue_list">
+<section class="group" id="venue_list" data-hunt-id="{{hunt.key}}">
   <header>
     <h3>{{hunt.name}}</h3>
   </header>
   <ul id="current_venues">
     {% for venue in venues %}
-       <li class="venue-item" data-id="{{venue.id}}"><a href="#" class="venue-delete">⌫</a>{{venue.name}}</li>
+       <li class="venue-item" data-id="{{venue.foursquare_id}}"><a class="close" href="#">&times;</a>{{venue.name}}</li>
     {% endfor %}
   </ul>
   <form method="get" id="venue_form">
@@ -27,6 +27,7 @@
 
 {% endblock %}
 {% block javascript %}
+<script src="/static/js/bootstrap-alerts.js" type="text/javascript"></script>
 <script type="text/javascript">
 
 if (Modernizr.geolocation) {
@@ -92,11 +93,13 @@ $(function(){
   $('#venue_map').delegate('a.add_venue', 'click', function(e) {
     e.preventDefault();
     var $el = $(this),
-      venue_id = $el.data('id');
-    $.get( window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
+      venue_id = $el.data('id'),
+      hunt_id = $('#venue_list').data('hunt-id');
+    $.get('/hunt/'+hunt_id+'/add_venue?venue_id=' + venue_id , function(data) {
       if (data === 'Ok') {
         $('#current_venues')
-          .append('<li class="venue-item" data-id="'+venue_id+'"><a href="#" class="venue-delete">⌫</a>'+$el.text()+'</li>');
+          .append('<li class="venue-item" data-id="'+venue_id+'"><a class="close" href="#">&times;</a>'+$el.text()+'</li>');
+        $('<div class="alert-message success"><a class="close" href="#">&times;</a><p>Venue added succesfully</p></div>').appendTo('#alerts');
       } else if (data === "Error") {
         console.log('todo mal');
       } else {
@@ -105,6 +108,24 @@ $(function(){
     });
   });
   
+  $('#current_venues').delegate('a.close', 'click', function(e) {
+    $el = $(this).closest('.venue-item'),
+      venue_id = $el.data('id'),
+      hunt_id = $('#venue_list').data('hunt-id');
+    
+    $.get('/hunt/'+hunt_id+'/remove_venue?venue_id=' + venue_id, function(data) {
+      if (data === 'Ok') {
+        $el.remove();
+        $('<div class="alert-message success"><a class="close" href="#">&times;</a><p>Venue removed succesfully</p></div>').appendTo('#alerts');
+      } else if (data === "Error") {
+        console.log('todo mal');
+      } else {
+        console.log('todo muy mal');
+      }
+    })
+  });
+  
+  $("#alerts .alert-message").alert();
 });
 
 
