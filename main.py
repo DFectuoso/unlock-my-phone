@@ -5,6 +5,7 @@ from foursquare import *
 from google.appengine.api import urlfetch
 import logging
 import keys
+from twilio_helper import alertAllPlayers
 
 from django.utils import simplejson as json
 from gaesessions import get_current_session
@@ -16,6 +17,7 @@ class User(db.Model):
   foursquare_id = db.StringProperty(required=False)
   first_name    = db.StringProperty(required=False)
   last_name     = db.StringProperty(required=False)
+  phone_number  = db.PhoneNumberProperty(required=False)
   created = db.DateTimeProperty(auto_now_add=True)
 
   @staticmethod
@@ -27,7 +29,6 @@ class User(db.Model):
     else:
       user = user_query[0]
     return user
-
 
 class Hunt(db.Model):
   name = db.StringProperty(required=False)
@@ -109,6 +110,7 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     user = User.get_or_create_user_by_foursquare_id(user_info["response"]["user"]["id"])
     user.first_name = user_info["response"]["user"]["firstName"]
     user.last_name  = user_info["response"]["user"]["lastName"]
+    user.phone_number = db.PhoneNumber(user_info["response"]["user"]["contact"]["phone"])
     user.access_token = result["access_token"]
     user.put()
 
@@ -132,6 +134,7 @@ class PushApiHandler(webapp.RequestHandler):
     logging.info(self.request.get("checkin"))
     foo = json.loads(self.request.get("checkin"))
     logging.info(foo)
+    alertAllPlayers(Hunt.all().fetch(1)[0])
 
 class HuntCreateHandler(webapp.RequestHandler):
   def post(self):
