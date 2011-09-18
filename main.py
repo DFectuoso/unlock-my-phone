@@ -270,10 +270,22 @@ class HuntPlayerHomeHandler(webapp.RequestHandler):
     session = get_current_session()
     if session.has_key('user'):
       user = session["user"]
-      hunt_player = HuntPlayer.all().filter("user",user).filter("hunt",hunt).fetch(1)
+      hunt_player = HuntPlayer.all().filter("user", user).filter("hunt", hunt).fetch(1)
       if len(hunt_player) == 0:
         self.response.out.write(template.render('templates/hunt-player-join-now.html', locals()))
       else:
+        hunt_player = hunt_player[0]
+        venues = hunt_player.hunt.venues
+        venues_for_display = []
+        checkins = HuntCheckin.all().filter("player", hunt_player).fetch(1000)
+        for venue in venues:
+          data = (venue.name, False)
+          for checkin in checkins:
+            if str(venue.key()) == str(checkin.venue.key()):
+              data = (venue.name, True)
+
+          venues_for_display.append(data)
+
         self.response.out.write(template.render('templates/hunt-player-status.html', locals()))
       # Did he join already?
     else:
