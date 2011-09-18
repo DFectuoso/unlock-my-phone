@@ -7,7 +7,7 @@
   </header>
   <ul id="current_venues">
     {% for venue in venues %}
-       <li>{{venue.name}}</li>
+       <li class="venue-item" data-id="{{venue.id}}"><a href="#" class="venue-delete">⌫</a>{{venue.name}}</li>
     {% endfor %}
   </ul>
   <form method="get" id="venue_form">
@@ -63,7 +63,7 @@ $(function(){
                         $list = $('<ul/>');
                         for (i in venues) {
                           if (!!venues[i]) {
-                            $list.append('<li><a href="#" class="add_venue">'+venues[i].name+'</a></li>');
+                            $list.append('<li><a href="#" data-id="'+venues[i].id+'" class="add_venue">'+venues[i].name+'</a></li>');
                           }
                         }          
                       }
@@ -91,10 +91,12 @@ $(function(){
 
   $('#venue_map').delegate('a.add_venue', 'click', function(e) {
     e.preventDefault();
-    var venue_id = $(this).data('id');
+    var $el = $(this),
+      venue_id = $el.data('id');
     $.get( window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
       if (data === 'Ok') {
-        console.log('todo bien');
+        $('#current_venues')
+          .append('<li class="venue-item" data-id="'+venue_id+'"><a href="#" class="venue-delete">⌫</a>'+$el.text()+'</li>');
       } else if (data === "Error") {
         console.log('todo mal');
       } else {
