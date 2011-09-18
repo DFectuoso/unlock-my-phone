@@ -69,7 +69,7 @@ $(function(){
       hunt_id = $('#venue_list').data('hunt-id');
     $.get('/hunt/'+hunt_id+'/add_venue?venue_id=' + venue.id , function(data) {
       if (data === 'Ok') {
-        $('#current_venues').append(tmpl('venue_item_tpl', venue));
+        $('#current_venues tbody').append(tmpl('venue_item_tpl', venue));
         
         $('#alerts').append(tmpl('success_alert_tpl', {message: 'Venue added succesfully'}));
       } else if (data === "Error") {
