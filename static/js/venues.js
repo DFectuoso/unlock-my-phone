@@ -124,6 +124,16 @@ $(function(){
   var gmtHours = -d.getTimezoneOffset()/60;
   $("#timezone_field").val(gmtHours);
   
-  $('#start_time').datetimepicker();
-  $('#end_time').datetimepicker();
+  var date = new Date();
+  $('#start_time').datetimepicker({
+    defaultDate: date,
+    hour: date.getHours(),
+    minute: date.getMinutes()
+  });
+  $('#end_time').datetimepicker({
+    defaultDate: date,
+    hour: date.getHours(),
+    minute: date.getMinutes()
+  });
+  
 });
