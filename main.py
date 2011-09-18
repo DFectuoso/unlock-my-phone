@@ -5,6 +5,7 @@ from foursquare import *
 from google.appengine.api import urlfetch
 import logging
 import keys
+from twilio_helper import alertAllPlayers, alertAllPlayersButMe
 
 from django.utils import simplejson as json
 from gaesessions import get_current_session
@@ -16,6 +17,7 @@ class User(db.Model):
   foursquare_id = db.StringProperty(required=False)
   first_name    = db.StringProperty(required=False)
   last_name     = db.StringProperty(required=False)
+  phone_number  = db.PhoneNumberProperty(required=False)
   created = db.DateTimeProperty(auto_now_add=True)
 
   @staticmethod
@@ -113,6 +115,7 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     user = User.get_or_create_user_by_foursquare_id(user_info["response"]["user"]["id"])
     user.first_name = user_info["response"]["user"]["firstName"]
     user.last_name  = user_info["response"]["user"]["lastName"]
+    user.phone_number = db.PhoneNumber(user_info["response"]["user"]["contact"]["phone"])
     user.access_token = result["access_token"]
     user.put()
 
@@ -260,6 +263,7 @@ class HuntPlayerJoinHandler(webapp.RequestHandler):
       if len(hunt_player) == 0:
         hunt_player = HuntPlayer(user=user,hunt=hunt)
         hunt_player.put()
+        alertAllPlayersButMe(hunt_player, hunt, hunt_player.user.first_name + " just joined the hunt!")
         # Start crawling foursquare for life yeah, for, this, user.
       self.redirect("/" + hunt_key)
     else:
