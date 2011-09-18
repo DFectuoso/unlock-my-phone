@@ -97,5 +97,19 @@ $(function(){
     });
   });
   
+  $('#current_venues').delegate('.venue_difficulty', 'change', function(e) {
+    $el = $(this).closest('.venue-item');
+      venue_id = $el.data('id');
+      hunt_id = $('#venue_list').data('hunt-id');
+    $.ajax({
+      url: '/hunt/'+hunt_id+'/change_venue_difficulty?venue_id=' + venue_id + '&difficulty=' + $(this).val(),
+      success: function(data) {
+        if (data === 'Ok') {
+          $('#alerts').append(tmpl('success_alert_tpl', {message: 'Difficulty changed succesfully'}));
+        }
+      }
+    });
+  });
+  
   $("#alerts .alert-message").alert();
 });
