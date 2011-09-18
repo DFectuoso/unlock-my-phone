@@ -1,7 +1,6 @@
 import urllib, urllib2, base64, logging, keys
 
-def alertAllPlayers(hunt):
-  msg = "hello world"
+def alertAllPlayers(hunt, msg):
   logging.info(hunt)
   logging.info(hunt.players)
   for player in hunt.players:
