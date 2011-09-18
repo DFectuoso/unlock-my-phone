@@ -1,10 +1,28 @@
-{% extends 'base.html' %}
+{% extends 'home_base.html' %}
 {% block content %}
-<header>
-<h2>{{hunt.name}}</h2>
+<style type="text/css" media="screen">
+  .content {
+    padding: 4em;
+    overflow: hidden;
+    background: url("/static/img/girl_with_map.png") no-repeat scroll 95% 100% #FFFFFF;
+  }
+  .teaser {
+      font-size: 1.5em;
+      line-height: 1.4;
+      margin-bottom: 1em;
+  }
+  h3, .starthunting {
+      color: #FD5800;
+      float: left;
+      margin-top: 0;
+  }
+</style>
+<header class="span-two-thirds great">
+  <img class="logo desktop" src="/static/img/squarehunt_logo_400px.png">
+  <img class="logo mobile" style="display:none" src="/static/img/squarehunt_logo_200px.png">
+  <h1>{{hunt.user.first_name}} {{hunt.user.last_name}} is organizing a scavenger hunt!</h1>
+  <p class="teaser">Squarehunt is an easy way to join awesome adventures friends and fans have organized for you.</p>
+  <!-- <p>{{hunt.name}} is waiting for you</p> -->
+  <a class="btn large primary" href="/{{hunt_key}}/join">I'm ready to start hunting</a>
 </header>
-<div id="join_hunt">
-  <p>Are you ready for the hunt?</p>
-  <a class="btn info" href="/{{hunt_key}}/join">Join Now</a>
-</div>
 {% endblock %}
