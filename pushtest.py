@@ -15,7 +15,7 @@ def postData(url):
                 "homeCity": "New York, NY",
                 "relationship": "self" },
             "venue": {
-                "id": "4cdad38ad4ecb1f727107648",
+                "id": "40abf500f964a52035f31ee3",
                 "name": "foursquare HQ",
                 "contact": { "twitter": "foursquare" },
                 "location": {
