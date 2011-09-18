@@ -29,7 +29,7 @@ def postData(url):
                     },
                 "categories": [
                     {
-                        "id": "4bf58dd8d48988d125941735",
+                        "id": "40abf500f964a52035f31ee3",
                         "name": "Tech Startup",
                         "pluralName": "Tech Startups",
                         "shortName": "Tech Startup",

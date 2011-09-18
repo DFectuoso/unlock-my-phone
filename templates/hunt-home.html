@@ -17,21 +17,20 @@
             <option value="2" {% ifequal venue.difficulty 2 %}selected{% endifequal %}>Moderate</option>
             <option value="3" {% ifequal venue.difficulty 3 %}selected{% endifequal %}>Hard</option>
           </select>
+          <a class="close" href="#">&times;</a>
         </td>
-        <td><a class="close" href="#">&times;</a></td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
-  <h3>Add a new checkpoint</h3>
   <form method="get" class="" id="venue_form">
     <div class="clearfix">
       <label>Type a venue</label>
       <input type="text" name="query" placeholder="Pizza" id="venue_query" />
     </div>
-  </form>  
+  </form>
   <div id="venue_map">
- 
+
   </div>
 
   <h3>Time config</h3>
@@ -44,8 +43,11 @@
       <label>End Time</label>
       <input type="text" name="end_time" placeholder="MM/DD/YY" id="end_time" {% if hunt.end_time_local %}value="{{hunt.end_time_local|date:"m/d/Y H:i"}}"{% endif%}/>
     </div>
+    <div class="clearfix">
+      <label></label>
+      <input type="submit" value="Save">
+    </div>
     <input name="timezone" id="timezone_field" type="hidden"/>
-    <input type="submit"/>
   </form>
 
   <h3>Share this link with the players</h3>
