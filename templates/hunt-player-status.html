@@ -1,11 +1,53 @@
 {% extends 'base.html' %}
+{% block javascript %}
+<script type="text/javascript" src="/static/js/jquery.countdown.min.js"></script>
+<script>
+  $(function(){
+    $('#countdown').countdown({until: new Date(2011, 9-1, 18, 13, 30, 0), format: 'HMS'});
+  })
+</script>
+{% endblock %}
 {% block content %}
-{{ hunt.name }}
-
-<ul>
-{% for venue in venues_for_display %}
-<li>{{ venue.0 }} {% if venue.1 %}checkmark {% endif %}</li>
-{% endfor %}
-</ul>
+<style>
+  .checkmark{
+    text-align: center;
+  }
+  #countdown{
+    overflow: hidden;
+  }
+  .countdown_section{
+    float: left;
+    margin-right: 20px;
+    text-align: center;
+    padding: 5px;
+  }
+  .countdown_section > span:first-child{
+    font-size: 3em;
+    font-weight: bold;
+  }
+</style>
+<header>
+  <p class="desc">Current hunt</p>
+  <h2>{{ hunt.name }}</h2>
+</header>
+<h3>Time Left</h3>
+<div id="countdown"></div>
+<h3>Chekpoints</h3>
+<table class="zebra-striped">
+  <thead>
+    <tr>
+    <th>Name</th>
+    <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for venue in venues_for_display %}
+    <tr>
+      <td>{{ venue.0 }} </td>
+      <td class="checkmark">{% if venue.1 %} <img src="/static/img/checkmark.png"/> {% endif %}</td>
+    </tr>
+  {% endfor %}
+  <tbody>
+</table>
 
 {% endblock %}
