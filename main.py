@@ -5,6 +5,8 @@ from foursquare import *
 from google.appengine.api import urlfetch
 import logging
 import keys
+import datetime
+
 from twilio_helper import alertAllPlayers, alertAllPlayersButMe, alertPlayer
 
 from django.utils import simplejson as json
@@ -31,9 +33,13 @@ class User(db.Model):
     return user
 
 class Hunt(db.Model):
-  name = db.StringProperty(required=False)
-  user = db.ReferenceProperty(User, collection_name='hunts')
-  created = db.DateTimeProperty(auto_now_add=True)
+  name             = db.StringProperty(required=False)
+  user             = db.ReferenceProperty(User, collection_name='hunts')
+  created          = db.DateTimeProperty(auto_now_add=True)
+  start_time_gmt   = db.DateTimeProperty()
+  start_time_local = db.DateTimeProperty()
+  end_time_gmt     = db.DateTimeProperty()
+  end_time_local   = db.DateTimeProperty()
 
 class HuntVenue(db.Model):
   foursquare_id = db.StringProperty(required=False)
@@ -195,8 +201,33 @@ class HuntHomeHandler(webapp.RequestHandler):
       self.redirect("/")
 
 class HuntChangeTimeConfigHandler(webapp.RequestHandler):
-  def get(self,hunt_key):
-      self.redirect("/")
+  def post(self,hunt_key):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      hunt = db.get(hunt_key)
+      
+      try:
+        timezone_delta = int(self.request.get("timezone"))
+        parsed_date_time_start = datetime.datetime.strptime(self.request.get("start_time"),"%m/%d/%Y %H:%M")
+        parsed_date_time_end   = datetime.datetime.strptime(self.request.get("end_time"),"%m/%d/%Y %H:%M")
+
+        parsed_date_time_start_with_timezone = parsed_date_time_start + datetime.timedelta(hours=-timezone_delta)
+        parsed_date_time_end_with_timezone = parsed_date_time_end + datetime.timedelta(hours=-timezone_delta)
+
+        hunt.start_time_gmt = parsed_date_time_start_with_timezone
+        hunt.end_time_gmt   = parsed_date_time_end_with_timezone
+
+        hunt.start_time_local   = parsed_date_time_start
+        hunt.end_time_local   = parsed_date_time_end
+
+        hunt.put()
+        self.redirect("/hunt/" + hunt_key)
+      except ValueError:
+        logging.info("Failed to parse dates")
+        self.redirect("/hunt/" + hunt_key)
+    else:
+      self.redirect("/hunt/" + hunt_key)
 
 class HuntAddVenueHandler(webapp.RequestHandler):
   def get(self,hunt_key):

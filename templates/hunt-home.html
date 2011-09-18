@@ -35,22 +35,22 @@
   </div>
 
   <h3>Time config</h3>
-  <form method="get" target="/hunt/{{hunt_key}}/set_start_end_time">
+  <form method="POST" action="/hunt/{{hunt_key}}/set_start_end_time">
     <div class="clearfix">
       <label>Start Time</label>
-      <input type="text" name="start_time" placeholder="DD/MM/YY" id="start_time" />
+      <input type="text" name="start_time" placeholder="DD/MM/YY" id="start_time" {% if hunt.start_time_local %}value="{{hunt.start_time_local|date:"m/d/Y H:i"}}"{% endif%}/>
     </div>
     <div class="clearfix">
       <label>End Time</label>
-      <input type="text" name="end_time" placeholder="DD/MM/YY" id="end_time" />
+      <input type="text" name="end_time" placeholder="DD/MM/YY" id="end_time" {% if hunt.end_time_local %}value="{{hunt.end_time_local|date:"m/d/Y H:i"}}"{% endif%}/>
     </div>
     <input name="timezone" id="timezone_field" type="hidden"/>
+    <input type="submit"/>
   </form>
 
   <h3>Share this link with the players</h3>
   <p><span id="host">http://squarehunt.com/</span><span>{{hunt.key}}</span></p>
 </section>
-
 
 {% endblock %}
 {% block javascript %}
@@ -83,6 +83,8 @@
     var d = new Date();
     var gmtHours = -d.getTimezoneOffset()/60;
     $("#timezone_field").val(gmtHours);
+
+
   })
 </script>
 {% endblock %}
