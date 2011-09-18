@@ -3,7 +3,7 @@ from google.appengine.ext.webapp import util, template
 
 from foursquare import *
 from google.appengine.api import urlfetch
-import logging 
+import logging
 import keys
 
 from django.utils import simplejson as json
@@ -98,13 +98,13 @@ class LogoutHandler(webapp.RequestHandler):
 
 class OAuthCallbackHandler(webapp.RequestHandler):
   def get(self):
-    code = self.request.get("code")                                          
+    code = self.request.get("code")
     token_url = helper.get_access_token_url(code)
     logging.info(token_url)
-    result = urlfetch.fetch(token_url)                                       
+    result = urlfetch.fetch(token_url)
     result = json.loads(result.content)
 
-    client = FoursquareClient(result["access_token"])                        
+    client = FoursquareClient(result["access_token"])
     user_info = client.users()
     user = User.get_or_create_user_by_foursquare_id(user_info["response"]["user"]["id"])
     user.first_name = user_info["response"]["user"]["firstName"]
@@ -121,7 +121,7 @@ class OAuthCallbackHandler(webapp.RequestHandler):
       session.terminate()
     session.regenerate_id()
     session['user'] = user
-   
+
     if hunt_to_redirect is not "":
       self.redirect('/' + hunt_to_redirect + "/join")
     else:
@@ -166,7 +166,7 @@ class HuntAddVenueHandler(webapp.RequestHandler):
       venue_id = self.request.get("venue_id")
       # get venue
       venue = Venue.get_or_create_by_foursquare_id(venue_id)
-     
+
       # update venue
       client = FoursquareClient(user.access_token)
       venue.update_info(client.venues(venue_id))
@@ -189,7 +189,7 @@ class HuntRemoveVenueHandler(webapp.RequestHandler):
       venue_id = self.request.get("venue_id")
       # get venue
       venue = Venue.get_or_create_by_foursquare_id(venue_id)
-     
+
       # update venue
       client = FoursquareClient(user.access_token)
       venue.update_info(client.venues(venue_id))
