@@ -12,7 +12,7 @@
   </ul>
   <form method="get" id="venue_form">
       <fieldset>
-          <legend>Search for a venue</legend>
+          <legend>Add a venue</legend>
           <div class="clearfix">
               <label>&nbsp;</label>
               <input type="text" class="span4" name="query" placeholder="Pizza" id="venue_query" />
@@ -60,7 +60,7 @@ if (Modernizr.geolocation) {
               var venue = venues[i];
               if (!!venue) {
                 var venue_tmpl = '<div class="venue">'
-                  +'<a href="#" class="add_venue">'+venue.name+'</a>'
+                  +'<a href="#" class="add_venue" data-id="'+venue.id+'">'+venue.name+'</a>'
                   +'</div>';
                 $list.append(venue_tmpl);
               }
@@ -84,6 +84,20 @@ if (Modernizr.geolocation) {
     delay(function() {
       send_query($this.val());
     }, 300);
+  });
+  
+  $('#venue_map').delegate('a.add_venue', 'click', function(e) {
+    e.preventDefault();
+    venue_id = $(this).data('id');
+    $.get(window.location.href + '/add_venue?venue_id=' + venue_id, function(data) {
+      if (data === 'Ok') {
+        console.log('todo bien');
+      } else if (data === "Error") {
+        console.log('todo mal');
+      } else {
+        console.log('todo muy mal');
+      }
+    });
   });
   
 }());
