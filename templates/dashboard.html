@@ -4,7 +4,7 @@
   <h2>Scavenger hunts</h2>
 <ul>
 {% for hunt in hunts %}
-  <li>{{hunt.name}}</li>
+  <li><a href="/hunt/{{hunt.key}}">{{hunt.name}}</a></li>
 {% endfor %}
 </ul>
 <h3>Create a new hunt</h3>

@@ -33,25 +33,20 @@ class User(db.Model):
 class Hunt(db.Model):
   name = db.StringProperty(required=False)
   user = db.ReferenceProperty(User, collection_name='hunts')
-  venues = db.ListProperty(db.Key)
   created = db.DateTimeProperty(auto_now_add=True)
 
-class HuntPlayer(db.Model):
-  user = db.ReferenceProperty(User, collection_name="playing_hunts")
-  hunt = db.ReferenceProperty(Hunt, collection_name="players")
-  venues = db.ListProperty(db.Key)
-  started_playing = db.DateTimeProperty(auto_now_add=True)
-
-class Venue(db.Model):
+class HuntVenue(db.Model):
   foursquare_id = db.StringProperty(required=False)
   name = db.StringProperty(required=False)
   json = db.TextProperty(required=False)
+  hunt = db.ReferenceProperty(Hunt, collection_name="venues")
+  difficulty = db.IntegerProperty(default=1)
 
   @staticmethod
-  def get_or_create_by_foursquare_id(id):
-    venue_query = Venue.all().filter("foursquare_id", id).fetch(1)
+  def get_or_create_by_foursquare_id_and_hunt(foursquare_id, hunt):
+    venue_query = HuntVenue.all().filter("foursquare_id", foursquare_id).filter("hunt",hunt).fetch(1)
     if len(venue_query) == 0:
-      venue = Venue(foursquare_id=id)
+      venue = HuntVenue(foursquare_id=foursquare_id,hunt=hunt)
       venue.put()
     else:
       venue = venue_query[0]
@@ -62,6 +57,17 @@ class Venue(db.Model):
     self.name = venue_info["response"]["venue"]["name"]
     self.id = venue_info["response"]["venue"]["id"]
     self.put()
+
+class HuntPlayer(db.Model):
+  user            = db.ReferenceProperty(User, collection_name="playing_hunts")
+  hunt            = db.ReferenceProperty(Hunt, collection_name="players")
+  started_playing = db.DateTimeProperty(auto_now_add=True)
+
+class HuntCheckin(db.Model):
+  foursquare_id = db.StringProperty(required=False)
+  hunt          = db.ReferenceProperty(Hunt, collection_name="checkins")
+  venue         = db.ReferenceProperty(HuntVenue, collection_name="checkins")
+  player        = db.ReferenceProperty(HuntPlayer, collection_name="checkins")
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
@@ -137,32 +143,30 @@ class PushApiHandler(webapp.RequestHandler):
 
     # get user and venue, if we don't have a valid one, we don't care about this check in
     user = User.all().filter("foursquare_id",user_id).fetch(1)
-    venue = Venue.all().filter("foursquare_id",venue_id).fetch(1)
+    # Safeguard 
+    if len(user) == 0:
+      return
+    user = user[0]
 
-    if len(user) == 1 and len(venue) == 1:
-      user = user[0]
-      venue = venue[0]
+    for player in user.playing_hunts:
+      # TODO, check if the hunt is active
+      venue = HuntVenue.all().filter("foursquare_id",venue_id).filter("hunt",player.hunt).fetch(1)
 
-      #TODO only do this for players of ACTIVE hunts
-      # We assume that the player is playing a game right now
-      hunt_player = HuntPlayer.all().filter("user", user).order("-started_playing").fetch(1)
-
-      if len(hunt_player) == 1:
-        hunt_player = hunt_player[0]
-        active_hunt = hunt_player.hunt
-        alertAllPlayersButMe(hunt_player, active_hunt, hunt_player.user.first_name + " just joined the hunt!")
+      if len(venue) == 1:
+        venue = venue[0]
         # We need to make sure the user has not been on this location before
-        if hunt_player.venues.count(venue.key()) == 0:
-          hunt_player.venues.append(venue.key())
-          hunt_player.put()
+        hunt_checkin = HuntCheckin.all().filter("player",player).filter("hunt",player.hunt).filter("venue",venue).fetch(1)
+
+        if len(hunt_checkin) == 0:
+          hunt_checkin = HuntCheckin(player=player, hunt=player.hunt, venue=venue)
+          # TODO add some metadata from foursquare
+          hunt_checkin.put()
           # TODO Notify the user, the check in is in
           logging.info("We are in, lets do yea and yea")
         else:
-          logging.info("Got a user, playing but he had been here before")
+          logging.info("We had already done this thing")
       else:
-        logging.info("We got a user, but he is not playing")
-    else:
-      logging.info("Got a checkin, but we don't know that user or the venue")
+        logging.info("We got a user, but the venue is not intersting for us")
 
 class HuntCreateHandler(webapp.RequestHandler):
   def post(self):
@@ -182,8 +186,7 @@ class HuntHomeHandler(webapp.RequestHandler):
     if session.has_key('user'):
       user = session["user"]
       hunt = db.get(hunt_key)
-      logging.info(hunt.venues)
-      venues = db.get(hunt.venues)
+      venues = hunt.venues
       self.response.out.write(template.render("templates/hunt-home.html",locals()))
     else:
       self.redirect("/")
@@ -197,16 +200,11 @@ class HuntAddVenueHandler(webapp.RequestHandler):
       hunt = db.get(hunt_key)
       venue_id = self.request.get("venue_id")
       # get venue
-      venue = Venue.get_or_create_by_foursquare_id(venue_id)
+      venue = HuntVenue.get_or_create_by_foursquare_id_and_hunt(venue_id,hunt)
 
       # update venue
       client = FoursquareClient(user.access_token)
       venue.update_info(client.venues(venue_id))
-
-      # don't add it more than once
-      if hunt.venues.count(venue.key()) == 0:
-        hunt.venues.append(venue.key())
-        hunt.put()
       self.response.out.write("Ok")
     else:
       self.response.out.write("Error")
@@ -220,16 +218,30 @@ class HuntRemoveVenueHandler(webapp.RequestHandler):
       hunt = db.get(hunt_key)
       venue_id = self.request.get("venue_id")
       # get venue
-      venue = Venue.get_or_create_by_foursquare_id(venue_id)
+      venue = HuntVenue.get_or_create_by_foursquare_id_and_hunt(venue_id,hunt)
+      venue.delete()
+      self.response.out.write("Ok")
+    else:
+      self.response.out.write("Error")
 
-      # update venue
-      client = FoursquareClient(user.access_token)
-      venue.update_info(client.venues(venue_id))
+class HuntChangeVenueWeightHandler(webapp.RequestHandler):
+  def get(self,hunt_key):
+    session = get_current_session()
+    if session.has_key('user'):
+      difficulty = self.request.get("difficulty")
+      try:
+        difficulty = max(1, min(int(self.request.get("difficulty")),3))
+      except ValueError:
+        return
 
-      # don't add it more than once
-      if hunt.venues.count(venue.key()) == 1:
-        hunt.venues.remove(venue.key())
-        hunt.put()
+      #get user, hunt and venue_id
+      user = session["user"]
+      hunt = db.get(hunt_key)
+      venue_id = self.request.get("venue_id")
+      # get venue
+      venue = HuntVenue.get_or_create_by_foursquare_id_and_hunt(venue_id,hunt) 
+      venue.difficulty = difficulty
+      venue.put()
       self.response.out.write("Ok")
     else:
       self.response.out.write("Error")
@@ -291,6 +303,7 @@ def main():
     ('/hunt/create', HuntCreateHandler),
     ('/hunt/(.+)/add_venue', HuntAddVenueHandler),
     ('/hunt/(.+)/remove_venue', HuntRemoveVenueHandler),
+    ('/hunt/(.+)/change_venue_difficulty', HuntChangeVenueWeightHandler),
     ('/hunt/(.+)', HuntHomeHandler),
     ('/venue/search', VenueSearchHandler),
     ('/(.+)/join', HuntPlayerJoinHandler),
