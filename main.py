@@ -85,14 +85,6 @@ class OAuthCallbackHandler(webapp.RequestHandler):
     self.redirect('/dashboard')
 
 class HuntCreateHandler(webapp.RequestHandler):
-  def get(self):
-    session = get_current_session()
-    if session.has_key('user'):
-      user = session["user"]
-      self.response.out.write(template.render('templates/hunt-create.html', locals()))
-    else:
-      self.redirect("/")
- 
   def post(self):
     session = get_current_session()
     if session.has_key('user'):
@@ -100,10 +92,34 @@ class HuntCreateHandler(webapp.RequestHandler):
       name = self.request.get("name")
       hunt = Hunt(name=name,user=user)
       hunt.put()
-      self.redirect("/dashboard")
+      self.redirect("/hunt/" + str(hunt.key()))
     else:
       self.redirect("/")
  
+class HuntAddVenueHandler(webapp.RequestHandler):
+  def get(self):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      # hunt = hunt
+      # venue = venue
+      # link venue
+      self.response.out.write("Ok")
+    else:
+      self.response.out.write("Error")
+ 
+class HuntRemoveVenueHandler(webapp.RequestHandler):
+  def get(self):
+    session = get_current_session()
+    if session.has_key('user'):
+      user = session["user"]
+      # hunt = hunt
+      # venue = venue
+      # link venue
+      self.response.out.write("Ok")
+    else:
+      self.response.out.write("Error")
+
 class VenueSearchHandler(webapp.RequestHandler):
   def get(self):
     session = get_current_session()
@@ -127,6 +143,9 @@ def main():
     ('/logout', LogoutHandler),
     ('/oauth_callback', OAuthCallbackHandler),
     ('/hunt/create', HuntCreateHandler),
+    ('/hunt/add_venue', HuntAddVenueHandler),
+    ('/hunt/remove_venue', HuntRemoveVenueHandler),
+    ('/hunt/(.+)', HuntCreateHandler),
     ('/venue/search', VenueSearchHandler),
   ], debug=True)
   util.run_wsgi_app(application)
